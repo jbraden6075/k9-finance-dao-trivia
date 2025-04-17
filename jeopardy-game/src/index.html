@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeopardy Game</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <img src="./assets/K9 Finance Banner.png" alt="K9 Finance Banner" id="k9-banner">
+    </header>
+    <main>
+        <div id="game-container">
+            <div id="game-board">
+                <div id="category-row">
+                    <!-- Categories will be dynamically added here -->
+                </div>
+                <div id="question-grid">
+                    <!-- Question squares will be dynamically added here -->
+                </div>
+            </div>
+            <div id="winners-section">
+                <h2>Winners</h2>
+                <ul id="winners-list"></ul>
+                <button id="download-winners"></button>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 - K9 Finance DAO</p>
+    </footer>
+    <script type="module" src="scripts/app.js"></script>
+    <script>
+        function updateSquare(square, question, enteredValue) {
+            square.innerHTML = `
+                <div>${question.Question}</div>
+                <div style="font-weight: bold;">${question.Answer}</div>
+                <div style="font-style: italic;">${enteredValue}</div>
+            `;
+            square.classList.add("completed");
+        }
+    </script>
+</body>
+</html>
