@@ -6,7 +6,18 @@ const winners = [];
 document.addEventListener("DOMContentLoaded", async () => {
     const categoryRow = document.getElementById("category-row");
     const questionGrid = document.getElementById("question-grid");
-    const winnersList = document.getElementById("winners-list"); // Reference to the winners list
+    const winnersList = document.getElementById("winners-list");
+    const overlay = document.createElement("div");
+    const overlayContent = document.createElement("div");
+
+    // Create the overlay element
+    overlay.id = "question-overlay";
+    overlay.classList.add("overlay", "hidden");
+    overlayContent.id = "overlay-content";
+    overlay.appendChild(overlayContent);
+    document.body.appendChild(overlay);
+
+    let currentSquare = null;
 
     // Load questions from the CSV file
     const questions = await loadQuestions("assets/questions.csv");
@@ -15,58 +26,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Extract unique categories
     const categories = [...new Set(questions.map(q => q.Category))];
 
-    // Set the grid layout for the category row
+    // Set up the category row and question grid
     categoryRow.style.display = "grid";
-    categoryRow.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`; // Number of columns = number of categories
-    categoryRow.style.gap = "5px"; // Add spacing between categories
-
-    // Set the grid layout for the question grid
+    categoryRow.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
     questionGrid.style.display = "grid";
-    questionGrid.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`; // Number of columns = number of categories
-    questionGrid.style.gap = "5px"; // Add spacing between squares
+    questionGrid.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
 
-    // Create the category headers
+    // Populate categories and questions
     categories.forEach(category => {
         const categoryCell = document.createElement("div");
         categoryCell.classList.add("category-cell");
-        categoryCell.textContent = category; // Set the category text
+        categoryCell.textContent = category;
         categoryRow.appendChild(categoryCell);
     });
 
-    // Create the question squares
     for (let rowIndex = 0; rowIndex < 5; rowIndex++) {
         categories.forEach(category => {
             const square = document.createElement("div");
             square.classList.add("square");
-
-            // Display the question number (1, 2, 3, 4, 5)
             square.textContent = rowIndex + 1;
 
-            // Find the question for the current category and row
             const categoryQuestions = questions.filter(q => q.Category === category);
             const question = categoryQuestions[rowIndex];
 
             if (question) {
-                // Attach question data to the square
                 square.dataset.category = category;
                 square.dataset.question = question.Question;
                 square.dataset.answer = question.Answer;
 
                 // Add click event listener for each square
-                square.addEventListener("click", () => {
-                    if (square.textContent === `${rowIndex + 1}`) {
-                        // Show the question
-                        square.textContent = question.Question;
-                        square.classList.add("question-displayed");
-                    } else if (square.textContent === question.Question) {
-                        // Show the answer
-                        square.textContent = question.Answer;
-                        square.classList.remove("question-displayed");
-                        square.classList.add("answer-displayed");
-                    } else if (square.textContent === question.Answer) {
-                        // Display the input box and save button
-                        displayInputBox(square, category, question);
+                square.addEventListener("click", (event) => {
+                    // Prevent overlay from displaying if clicking inside input box, save button, or completed square
+                    if (
+                        event.target.classList.contains("input-box") ||
+                        event.target.classList.contains("save-button") ||
+                        square.classList.contains("completed")
+                    ) {
+                        return;
                     }
+
+                    currentSquare = square;
+                    showOverlay(question.Question, () => {
+                        showOverlay(question.Answer, () => {
+                            overlay.classList.add("hidden");
+                            displayInputBox(square, question);
+                        });
+                    });
                 });
             }
 
@@ -74,116 +79,77 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Function to display the input box and save button
-    function displayInputBox(square, category, question, currentWinner = "") {
-        setTimeout(() => {
-            const inputContainer = document.createElement("div");
-            inputContainer.classList.add("input-container");
+    // Function to show the overlay with content
+    function showOverlay(content, onClickCallback) {
+        overlayContent.textContent = content;
+        overlay.classList.remove("hidden");
 
-            const inputBox = document.createElement("input");
-            inputBox.type = "text";
-            inputBox.placeholder = "Enter winner's name";
-            inputBox.value = currentWinner;
-            inputBox.classList.add("input-box");
+        const handleClick = () => {
+            overlay.removeEventListener("click", handleClick);
+            if (onClickCallback) onClickCallback();
+        };
 
-            const saveButton = document.createElement("button");
-            saveButton.classList.add("save-button");
-
-            inputContainer.appendChild(inputBox);
-            inputContainer.appendChild(saveButton);
-
-            square.innerHTML = "";
-            square.appendChild(inputContainer);
-            square.classList.add("input-active");
-
-            saveButton.addEventListener("click", async () => {
-                const enteredValue = inputBox.value.trim();
-                if (enteredValue) {
-                    square.innerHTML = `
-                        <div>${question.Question}</div>
-                        <div style="font-weight: bold;">${question.Answer}</div>
-                        <div style="font-style: italic;">${enteredValue}</div>
-                    `;
-                    square.classList.remove("input-active");
-                    square.classList.add("completed");
-
-                    // Add or update the winner in the global winners array
-                    const existingWinnerIndex = winners.findIndex(w => w.question === question.Question);
-                    if (existingWinnerIndex !== -1) {
-                        // Update the existing winner
-                        winners[existingWinnerIndex].winnerName = enteredValue;
-                    } else {
-                        // Add a new winner
-                        winners.push({ question: question.Question, winnerName: enteredValue });
-                    }
-
-                    // Update the winners section
-                    updateWinnersSection(winners.map(w => w.winnerName));
-
-                    // Save the winner to the server
-                    await saveWinnerToServer(category, question.Question, question.Answer, enteredValue);
-                }
-            });
-        }, 0);
+        overlay.addEventListener("click", handleClick);
     }
 
-    // Function to update the winners section
-    function updateWinnersSection(winners) {
-        winnersList.innerHTML = ""; // Clear the current list
+    // Function to display the input box and save button
+    function displayInputBox(square, question) {
+        square.innerHTML = `
+            <div class="input-container">
+                <input type="text" class="input-box" placeholder="Enter winner's name">
+                <button class="save-button"></button>
+            </div>
+        `;
+        square.classList.add("input-active");
 
-        // Calculate the total wins for each winner
-        const winnerCounts = winners.reduce((counts, winner) => {
-            if (counts[winner]) {
-                counts[winner] += 1;
-            } else {
-                counts[winner] = 1;
+        const saveButton = square.querySelector(".save-button");
+        const inputBox = square.querySelector(".input-box");
+
+        saveButton.addEventListener("click", () => {
+            const winnerName = inputBox.value.trim();
+            if (winnerName) {
+                square.innerHTML = `
+                    <div>${question.Question}</div>
+                    <div style="font-weight: bold;">${question.Answer}</div>
+                    <div style="font-style: italic;">${winnerName}</div>
+                `;
+                square.classList.remove("input-active");
+                square.classList.add("completed");
+
+                // Update the winners list
+                updateWinnersList(question.Question, winnerName);
             }
-            return counts;
-        }, {});
-
-        // Sort winners by their counts in descending order
-        const sortedWinners = Object.entries(winnerCounts).sort((a, b) => b[1] - a[1]);
-
-        // Display the winners and their win counts
-        sortedWinners.forEach(([winnerName, winCount], index) => {
-            // Format the list item
-            const listItem = document.createElement("li");
-            listItem.textContent = `${index + 1}. ${winnerName}.....${winCount}`;
-            winnersList.appendChild(listItem);
-
-            // Add a horizontal line after each winner
-            const hr = document.createElement("hr");
-            winnersList.appendChild(hr);
         });
+    }
+
+    // Function to update the winners list
+    function updateWinnersList(question, winnerName) {
+        // Check if the winner already exists in the winners array
+        const winnerIndex = winners.findIndex(w => w.winnerName === winnerName);
+
+        if (winnerIndex !== -1) {
+            // If the winner already exists, increment their win count
+            winners[winnerIndex].winCount += 1;
+        } else {
+            // If the winner is new, add them to the winners array
+            winners.push({ question, winnerName, winCount: 1 });
+        }
+
+        // Sort the winners array by win count in descending order
+        winners.sort((a, b) => b.winCount - a.winCount);
+
+        // Update the winners list in the DOM
+        winnersList.innerHTML = winners
+            .map((winner, index) => {
+                const formattedIndex = (index + 1).toString().padStart(2, '0'); // Add leading zero to the index
+                return `<li>${formattedIndex}. ${winner.winnerName}.....${winner.winCount}</li>`;
+            })
+            .join("");
     }
 });
 
-// Function to save winners to a file
-/*function saveWinnersToFile(winners) {
-    // Create a Map to track winners by question
-    const winnerMap = new Map();
-
-    // Populate the Map with the latest winner for each question
-    winners.forEach(winner => {
-        const { question, winnerName } = winner;
-        winnerMap.set(question, winnerName);
-    });
-
-    // Create a string representation of the winners
-    const winnersText = Array.from(winnerMap.entries())
-        .map(([question, winnerName]) => `${question},${winnerName}`)
-        .join("\n");
-
-    // Create a Blob and download it
-    const blob = new Blob([winnersText], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "winners.txt";
-    link.click();
-}*/
-
 // Function to save winner to the server
-async function saveWinnerToServer(category, question, answer, winnerName) {
+/*async function saveWinnerToServer(category, question, answer, winnerName) {
     try {
         const response = await fetch('/saveWinner', {
             method: 'POST',
@@ -201,7 +167,7 @@ async function saveWinnerToServer(category, question, answer, winnerName) {
     } catch (error) {
         console.error('Error saving winner to the server:', error);
     }
-}
+}*/
 
 // Function to generate and download the winners file
 function downloadWinnersFile() {
