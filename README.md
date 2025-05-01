@@ -40,6 +40,10 @@ To run the Jeopardy game locally, follow these steps:
    - In the terminal, enter: `node server.js`
    - In the terminal, hold down CTRL + left click on the localhost link in the terminal.
 
+<p align="center">
+<img src="jeopardy-game\src\assets\Trivia Game Board.png" alt="Game Board" width="800" height="600">
+</p>
+
 ## Game Functionality
 
 - The game displays categories and questions loaded from the `questions.csv` file.
