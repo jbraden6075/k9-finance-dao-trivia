@@ -35,10 +35,10 @@ To run the Jeopardy game locally, follow these steps:
    npm install
    ```
 
-3. **Open the game**:
-   Open 'jeopardy-game\src\assets\questions.csv' and populate with categories, questions, and answers.
-   In the terminal, enter: `node server.js`
-   In the terminal, hold down CTRL + left click on the localhost link in the terminal.
+3. **Load the game**:
+   - Open 'jeopardy-game\src\assets\questions.csv' and populate with categories, questions, and answers.
+   - In the terminal, enter: `node server.js`
+   - In the terminal, hold down CTRL + left click on the localhost link in the terminal.
 
 ## Game Functionality
 
