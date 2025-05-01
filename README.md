@@ -25,7 +25,7 @@ To run the Jeopardy game locally, follow these steps:
 
 1. **Clone the repository**:
    ```
-   git clone <repository-url>
+   git clone https://github.com/jbraden6075/k9-finance-dao-trivia
    cd jeopardy-game
    ```
 
