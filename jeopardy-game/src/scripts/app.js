@@ -36,7 +36,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     categories.forEach(category => {
         const categoryCell = document.createElement("div");
         categoryCell.classList.add("category-cell");
-        categoryCell.textContent = category;
+        const displayName = category.replace(/_/g, ' ');
+        categoryCell.textContent = displayName;
+        if (displayName.includes(' ')) {
+            categoryCell.classList.add('multi-word');
+        }
         categoryRow.appendChild(categoryCell);
     });
 

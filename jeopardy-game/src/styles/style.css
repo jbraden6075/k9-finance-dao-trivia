@@ -66,6 +66,11 @@ h1 {
     background: linear-gradient(to bottom, #EF7C31, #D65A1F); /* Add gradient for lighting effect */
 }
 
+/* Make font smaller for multi-word category cells
+.category-cell.multi-word {
+    font-size: 20px; //or any size you prefer 
+} */
+
 #question-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr); /* Dynamically adjust based on the number of columns */
