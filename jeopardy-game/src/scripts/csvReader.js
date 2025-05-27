@@ -8,7 +8,7 @@ export async function loadQuestions(filePath) {
 
         // Parse the CSV into an array of objects
         const rows = csvText.split("\n").filter(row => row.trim() !== ""); // Remove empty rows
-        const headers = rows[0].split(","); // Extract headers from the first row
+        const headers = rows[0].split(",").map(h => h.trim());
 
         return rows.slice(1).map(row => {
             // Use a regular expression to split the row while preserving quoted values
