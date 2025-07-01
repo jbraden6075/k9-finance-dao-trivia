@@ -135,7 +135,7 @@ h1 {
     flex-direction: column; /* Stack children vertically */
     justify-content: space-between; /* Push the list to the top and the button to the bottom */
     align-items: center; /* Center the button horizontally */
-    min-height: 1175px; /* or whatever the initial height is */
+    min-height: 1150px; /* or whatever the initial height is */
     /*height: 600px;*/
     /* width: 20%; */
     min-width: 330px; /* Set the width of the winners section */
@@ -200,12 +200,6 @@ h1 {
     font-size: 20px;
     margin: 10px 0;
 }
-
-/*.answer {
-    font-size: 18px;
-    margin: 10px 0;
-    color: #28a745;
-}*/
 
 .button {
     padding: 10px 20px;
@@ -495,11 +489,7 @@ h1 {
 .final-round-square,
 .completed.final-round-square {
     width: 1300px !important;
-    max-width: 1300px !important;
-    min-width: 1300px !important;
-    height: 11175px !important;
-    min-height: 1175px !important;
-    max-height: 1175px !important;
+    height: 1100px !important;
     margin: 0 auto;
 }
 
@@ -527,66 +517,52 @@ h1 {
 #category-row.final-round,
 .final-round-square,
 .completed.final-round-square {
+    height: 50px !important;
     width: 1300px !important;
-    /* max-width: 1300px !important;
-    min-width: 1300px !important;
-    height: 1175px !important;
-    min-height: 1175px !important;
-    max-height: 1175px !important; */
     margin: 0 auto;
 }
 
+/* Final round square (uncompleted) */
+.final-round-square {
+    width: 1300px !important;
+    max-width: 1300px !important;
+    min-width: 1300px !important;
+    height: 1150px !important;         /* Shortened height */
+    min-height: 1150px !important;
+    max-height: 1150px !important;
+    margin: 0 auto;
+    position: relative;
+    background: linear-gradient(to bottom, #F3A73D, #D68A3D); /* Match .square */
+    color: #000000;
+    border: 2px solid #000000;
+    box-sizing: border-box;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+/* Completed final round square (independent) */
 .completed.final-round-square {
-    background-color: #EF7C31 !important; /* Match winners section */
+    background: #EF7C31 !important;
+    color: #000000;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 1300px !important;
-    max-width: 1300px !important;
-    min-width: 1300px !important;
-    height: 1000px !important;
-    min-height: 1175px !important;
-    max-height: 1175px !important;
+    height: 1150px !important;
+    min-height: 1150px !important;
+    max-height: 1150px !important;
     margin: 0 auto;
-    box-sizing: border-box;
+    position: relative;
+    font-size: 24px;
 }
 
-/* Remove background from child divs inside completed final round square */
+/* Make sure input container and children are transparent for completed final round */
+.completed.final-round-square .input-container,
 .completed.final-round-square > div {
     background: transparent !important;
-}
-
-#overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #F3A73D;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Manrope', sans-serif;
-    font-weight: 400;
-    font-size: 36px;
-    color: #000000;
-    text-align: center;
-    z-index: 1000;
-    padding: 20px;
-    line-height: 3;
-}
-
-#overlay.hidden {
-    display: none;
-}
-
-#overlay-content {
-    background: #F3A73D;
-    font-size: 2rem;
-    color: #222;
-    max-width: 90vw;
-    max-height: 80vh;
-    overflow: auto;
-    text-align: center;
 }
