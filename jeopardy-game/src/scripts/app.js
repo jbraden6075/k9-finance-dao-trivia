@@ -3,28 +3,151 @@ import { loadQuestions } from './csvReader.js';
 // Declare the winners array globally
 const winners = [];
 
+let currentRound = 1;
+let allQuestions = [];
+let allCategories = [];
+
+let currentSquare = null; // <-- Add this at the top of your script
+let overlay, overlayContent;
+let winnersList; // Declare at the top
+const completedSquares = new Map(); // key: `${round}_${category}_${question}`, value: {winnerName}
+
 document.addEventListener("DOMContentLoaded", async () => {
     const categoryRow = document.getElementById("category-row");
     const questionGrid = document.getElementById("question-grid");
-    const winnersList = document.getElementById("winners-list");
-    const overlay = document.createElement("div");
-    const overlayContent = document.createElement("div");
 
     // Create the overlay element
+    overlay = document.createElement("div");
+    overlayContent = document.createElement("div");
     overlay.id = "question-overlay";
     overlay.classList.add("overlay", "hidden");
     overlayContent.id = "overlay-content";
     overlay.appendChild(overlayContent);
     document.body.appendChild(overlay);
 
-    let currentSquare = null;
-
     // Load questions from the CSV file
-    const questions = await loadQuestions("assets/questions.csv");
-    console.log("Loaded questions:", questions);
+    allQuestions = await loadQuestions("assets/questions.csv");
+    // Extract all unique categories
+    allCategories = [...new Set(allQuestions.map(q => q.Category))];
 
-    // Extract unique categories
-    const categories = [...new Set(questions.map(q => q.Category))];
+    renderBoard(currentRound);
+
+    // Add event listener for Round 2 button
+    document.getElementById("round2-btn").addEventListener("click", () => {
+        currentRound = 2;
+        renderBoard(currentRound);
+    });
+
+    document.getElementById("round1-btn").addEventListener("click", () => {
+        currentRound = 1;
+        renderBoard(currentRound);
+    });
+
+    document.getElementById("round3-btn").addEventListener("click", () => {
+        currentRound = 3;
+        renderBoard(currentRound);
+    });
+
+    winnersList = document.getElementById("winners-list"); // Assign inside DOMContentLoaded
+});
+
+// --- Place these at the top level, not inside DOMContentLoaded ---
+
+function showOverlay(content, onClickCallback) {
+    overlayContent.textContent = content;
+    overlay.classList.remove("hidden");
+
+    const handleClick = () => {
+        overlay.removeEventListener("click", handleClick);
+        if (onClickCallback) onClickCallback();
+    };
+
+    overlay.addEventListener("click", handleClick);
+}
+
+function displayInputBox(square, question) {
+    square.innerHTML = `
+        <div class="input-container">
+            <input type="text" class="input-box" placeholder="Enter winner's name">
+            <button class="save-button"></button>
+        </div>
+    `;
+    square.classList.add("input-active");
+
+    const saveButton = square.querySelector(".save-button");
+    const inputBox = square.querySelector(".input-box");
+
+    saveButton.addEventListener("click", () => {
+        const winnerName = inputBox.value.trim();
+        if (winnerName) {
+            // Persist completed state
+            const key = `${currentRound}_${square.dataset.category}_${square.dataset.question}`;
+            completedSquares.set(key, { winnerName });
+
+            square.innerHTML = `
+                <div>${square.dataset.question}</div>
+                <div style="font-weight: bold;">${square.dataset.answer}</div>
+                <div style="font-style: italic;">${winnerName}</div>
+            `;
+            square.classList.remove("input-active");
+            square.classList.add("completed");
+
+            // Update the winners list
+            updateWinnersList(square.dataset.question, winnerName);
+        }
+    });
+}
+
+// Function to update the winners list
+function updateWinnersList(question, winnerName) {
+    // Find the winner in the array
+    let winner = winners.find(w => w.winnerName === winnerName);
+
+    if (winner) {
+        winner.rounds = winner.rounds || {};
+        winner.rounds[currentRound] = (winner.rounds[currentRound] || 0) + 1;
+    } else {
+        winner = {
+            winnerName,
+            rounds: { [currentRound]: 1 }
+        };
+        winners.push(winner);
+    }
+
+    // Sort winners by total dollar amount descending
+    winners.sort((a, b) => {
+        const aTotal = (a.rounds[1] || 0) * 15 + (a.rounds[2] || 0) * 25 + (a.rounds[3] || 0) * 100;
+        const bTotal = (b.rounds[1] || 0) * 15 + (b.rounds[2] || 0) * 25 + (b.rounds[3] || 0) * 100;
+        return bTotal - aTotal;
+    });
+
+    // Calculate the max length for padding (after all winners are added)
+    const maxNameLength = Math.max(...winners.map(w => w.winnerName.length));
+    const padLength = maxNameLength + 6; // 6 extra for dots
+
+    winnersList.innerHTML = winners
+        .map((winner, index) => {
+            const r1 = winner.rounds[1] || 0;
+            const r2 = winner.rounds[2] || 0;
+            const r3 = winner.rounds[3] || 0;
+            const totalDollars = (r1 * 15) + (r2 * 25) + (r3 * 100);
+            // Pad with dots to align the dollar amounts
+            const paddedName = (winner.winnerName + '......').padEnd(padLength, '.');
+            return `<li>${index + 1}) ${paddedName}$${totalDollars}</li>`;
+        })
+        .join("");
+}
+
+function renderBoard(round) {
+    const categoryRow = document.getElementById("category-row");
+    const questionGrid = document.getElementById("question-grid");
+
+    // Clear previous board
+    categoryRow.innerHTML = "";
+    questionGrid.innerHTML = "";
+
+    // Get categories for this round (2 per round)
+    const categories = allCategories.slice((round - 1) * 2, round * 2);
 
     // Set up the category row and question grid
     categoryRow.style.display = "grid";
@@ -32,7 +155,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     questionGrid.style.display = "grid";
     questionGrid.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
 
-    // Populate categories and questions
+    // Populate categories
     categories.forEach(category => {
         const categoryCell = document.createElement("div");
         categoryCell.classList.add("category-cell");
@@ -44,13 +167,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         categoryRow.appendChild(categoryCell);
     });
 
-    for (let rowIndex = 0; rowIndex < 5; rowIndex++) {
+    // Determine number of questions per category for this round
+    const numQuestions = (round === 3) ? 1 : 5;
+
+    // Populate questions
+    for (let rowIndex = 0; rowIndex < numQuestions; rowIndex++) {
         categories.forEach(category => {
             const square = document.createElement("div");
             square.classList.add("square");
+            if (round === 3) {
+                square.classList.add("final-round-square");
+            }
             square.textContent = rowIndex + 1;
 
-            const categoryQuestions = questions.filter(q => q.Category === category);
+            const categoryQuestions = allQuestions.filter(q => q.Category === category);
             const question = categoryQuestions[rowIndex];
 
             if (question) {
@@ -58,99 +188,47 @@ document.addEventListener("DOMContentLoaded", async () => {
                 square.dataset.question = question.Question;
                 square.dataset.answer = question.Answer;
 
-                // Add click event listener for each square
-                square.addEventListener("click", (event) => {
-                    // Prevent overlay from displaying if clicking inside input box, save button, or completed square
-                    if (
-                        event.target.classList.contains("input-box") ||
-                        event.target.classList.contains("save-button") ||
-                        square.classList.contains("completed")
-                    ) {
-                        return;
-                    }
+                // Check if this square is completed
+                const key = `${round}_${category}_${question.Question}`;
+                const completed = completedSquares.get(key);
+                if (completed) {
+                    square.innerHTML = `
+                        <div>${question.Question}</div>
+                        <div style="font-weight: bold;">${question.Answer}</div>
+                        <div style="font-style: italic;">${completed.winnerName}</div>
+                    `;
+                    square.classList.add("completed");
+                } else {
+                    square.addEventListener("click", (event) => {
+                        if (
+                            event.target.classList.contains("input-box") ||
+                            event.target.classList.contains("save-button") ||
+                            square.classList.contains("completed")
+                        ) {
+                            return;
+                        }
 
-                    currentSquare = square;
-                    showOverlay(question.Question, () => {
-                        showOverlay(question.Answer, () => {
-                            overlay.classList.add("hidden");
-                            displayInputBox(square, question);
+                        currentSquare = square;
+                        showOverlay(question.Question, () => {
+                            showOverlay(question.Answer, () => {
+                                overlay.classList.add("hidden");
+                                displayInputBox(square, question);
+                            });
                         });
                     });
-                });
+                }
             }
 
             questionGrid.appendChild(square);
         });
     }
 
-    // Function to show the overlay with content
-    function showOverlay(content, onClickCallback) {
-        overlayContent.textContent = content;
-        overlay.classList.remove("hidden");
-
-        const handleClick = () => {
-            overlay.removeEventListener("click", handleClick);
-            if (onClickCallback) onClickCallback();
-        };
-
-        overlay.addEventListener("click", handleClick);
+    if (currentRound === 3) {
+        categoryRow.classList.add("final-round");
+    } else {
+        categoryRow.classList.remove("final-round");
     }
-
-    // Function to display the input box and save button
-    function displayInputBox(square, question) {
-        square.innerHTML = `
-            <div class="input-container">
-                <input type="text" class="input-box" placeholder="Enter winner's name">
-                <button class="save-button"></button>
-            </div>
-        `;
-        square.classList.add("input-active");
-
-        const saveButton = square.querySelector(".save-button");
-        const inputBox = square.querySelector(".input-box");
-
-        saveButton.addEventListener("click", () => {
-            const winnerName = inputBox.value.trim();
-            if (winnerName) {
-                square.innerHTML = `
-                    <div>${question.Question}</div>
-                    <div style="font-weight: bold;">${question.Answer}</div>
-                    <div style="font-style: italic;">${winnerName}</div>
-                `;
-                square.classList.remove("input-active");
-                square.classList.add("completed");
-
-                // Update the winners list
-                updateWinnersList(question.Question, winnerName);
-            }
-        });
-    }
-
-    // Function to update the winners list
-    function updateWinnersList(question, winnerName) {
-        // Check if the winner already exists in the winners array
-        const winnerIndex = winners.findIndex(w => w.winnerName === winnerName);
-
-        if (winnerIndex !== -1) {
-            // If the winner already exists, increment their win count
-            winners[winnerIndex].winCount += 1;
-        } else {
-            // If the winner is new, add them to the winners array
-            winners.push({ question, winnerName, winCount: 1 });
-        }
-
-        // Sort the winners array by win count in descending order
-        winners.sort((a, b) => b.winCount - a.winCount);
-
-        // Update the winners list in the DOM
-        winnersList.innerHTML = winners
-            .map((winner, index) => {
-                const formattedIndex = (index + 1).toString().padStart(2, '0'); // Add leading zero to the index
-                return `<li>${formattedIndex}. ${winner.winnerName}.....${winner.winCount}</li>`;
-            })
-            .join("");
-    }
-});
+}
 
 // Function to save winner to the server
 /*async function saveWinnerToServer(category, question, answer, winnerName) {
@@ -175,25 +253,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Function to generate and download the winners file
 function downloadWinnersFile() {
-    // Get the winners list from the DOM
-    const winnersList = document.querySelectorAll("#winners-list li");
+    // Calculate the max length for padding
+    const maxNameLength = Math.max(...winners.map(w => w.winnerName.length));
+    const padLength = maxNameLength + 6; // 6 extra for dots
 
-    // Map the winners list to an array of formatted strings
-    const winnersData = Array.from(winnersList).map((li, index) => {
-        // Extract the winner's name and win count from the text content
-        const textParts = li.textContent.split(".....");
-        const winnerName = textParts[0].replace(/^\d+\.\s*/, "").trim(); // Remove the leading index and trim spaces
-        const winCount = textParts[1]?.trim() || "0"; // Default to "0" if win count is missing
-
-        // Add a leading zero to the index if it's less than 10
-        const formattedIndex = (index + 1).toString().padStart(2, '0');
-
-        // Calculate the number of dots needed for alignment
-        const maxLineLength = 35; // Adjust this value to reduce the total line length
-        const dotsLength = maxLineLength - (formattedIndex.length + 2 + winnerName.length + winCount.length); // 2 accounts for ". "
-        const dots = '.'.repeat(Math.max(dotsLength, 3)); // Ensure at least 3 dots
-
-        return `${formattedIndex}. ${winnerName}${dots}${winCount}`;
+    const winnersData = winners.map((winner, index) => {
+        const r1 = winner.rounds[1] || 0;
+        const r2 = winner.rounds[2] || 0;
+        const r3 = winner.rounds[3] || 0;
+        const totalDollars = (r1 * 15) + (r2 * 25) + (r3 * 100);
+        const paddedName = (winner.winnerName + '......').padEnd(padLength, '.');
+        return `${index + 1}) ${paddedName}$${totalDollars}`;
     });
 
     // Build the content of the .txt file
@@ -201,10 +271,10 @@ function downloadWinnersFile() {
 
     // Generate the filename with the current date in MM-DD-YYYY format
     const currentDate = new Date();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const day = String(currentDate.getDate()).padStart(2, '0');
     const year = currentDate.getFullYear();
-    const formattedDate = `${month}-${day}-${year}`; // Format as MM-DD-YYYY
+    const formattedDate = `${month}-${day}-${year}`;
     const fileName = `K9 Finance DAO Trivia Winners - ${formattedDate}.txt`;
 
     // Create a Blob and download it

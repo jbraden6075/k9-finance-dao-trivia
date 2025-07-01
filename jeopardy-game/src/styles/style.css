@@ -29,7 +29,8 @@ h1 {
     display: flex; /* Align the game board and winners section side by side */
     align-items: flex-start; /* Align the top edges of both sections */
     gap: 20px; /* Add spacing between the game board and winners section */
-    width: 100%; /* Ensure the container spans the full width */
+    width: auto;
+    max-width: 2000px; /* Adjust as needed for your largest board + winners section */
     margin: 0 auto; /* Center the container horizontally */
     box-sizing: border-box; /* Include padding and border in the element's size */
 }
@@ -46,8 +47,35 @@ h1 {
 
 #category-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Dynamically adjust based on the number of categories */
-    gap: 5px; /* Add spacing between the category rectangles */
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for 2 categories */
+    gap: 10px; /* Adjust as needed */
+    width: 100%;
+}
+
+#category-row.final-round {
+    width: 1300px !important;
+    max-width: 1300px !important;
+    min-width: 1300px !important;
+    margin: 0 auto;
+    grid-template-columns: 1fr !important;
+    /* No height here! */
+}
+
+.final-round-square,
+.completed.final-round-square {
+    background-color: #EF7C31 !important;
+    width: 1300px !important;
+    max-width: 1300px !important;
+    min-width: 1300px !important;
+    height: 1175px !important;
+    min-height: 1175px !important;
+    max-height: 1175px !important;
+    margin: 0 auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .category-cell {
@@ -73,8 +101,9 @@ h1 {
 
 #question-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Dynamically adjust based on the number of columns */
-    gap: 5px; /* Add spacing between the squares */
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for questions */
+    gap: 10px; /* Adjust as needed */
+    width: 100%;
 }
 
 .square {
@@ -89,8 +118,8 @@ h1 {
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    width: 335px; /* Set a fixed width for the squares */
-    height: 220px; /* Set a fixed height for the squares */
+    width: 650px; /* Set a fixed width for the squares */
+    height: 215px; /* Set a fixed height for the squares */
     overflow: hidden;
     word-wrap: break-word;
     word-break: break-word;
@@ -112,7 +141,10 @@ h1 {
     flex-direction: column; /* Stack children vertically */
     justify-content: space-between; /* Push the list to the top and the button to the bottom */
     align-items: center; /* Center the button horizontally */
-    width: 20%; /* Set the width of the winners section */
+    min-height: 1175px; /* or whatever the initial height is */
+    /*height: 600px;*/
+    /* width: 20%; */
+    min-width: 330px; /* Set the width of the winners section */
     background-color: #EF7C31; /* Optional: Add a background color */
     border: 2px solid #000000; /* Optional: Add a border */
     border-radius: 5px; /* Optional: Add rounded corners */
@@ -124,6 +156,8 @@ h1 {
     font-size: 12px; /* Set font size to 12px */
     color: #000000; /* Optional: Set text color */
     margin-right: 20px;
+    
+    box-sizing: border-box;
 }
 
 /* Style for the winners list */
@@ -150,7 +184,7 @@ h1 {
     padding: 10px 0; /* Add spacing between rows */
     border-bottom: 1px solid #ccc; /* Add a solid grey line below each row */
     font-family: 'Manrope', sans-serif; /* Ensure consistent font */
-    font-size: 16px; /* Adjust font size */
+    font-size: 14px; /* Adjust font size */
     color: #000; /* Set text color */
     font-weight: 500;
     line-height: 1.5;
@@ -204,8 +238,8 @@ h1 {
 .answer-displayed,
 .input-active,
 .completed {
-    width: 335px; /* Set a fixed width for the squares */
-    height: 220px; /* Set a fixed height for the squares */
+    width: 650px; /* Set a fixed width for the squares */
+    height: 200px; /* Set a fixed height for the squares */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -225,26 +259,32 @@ h1 {
 }
 
 .completed {
-    background-color: #EF7C31; /* Ensure the entire square has this background color */
+    background-color: #EF7C31;
     display: flex;
-    flex-direction: column; /* Stack the content vertically */
-    align-items: center; /* Center the content horizontally */
-    justify-content: center; /* Center the content vertically */
-    width: 335px; /* Set a fixed width for the squares */
-    height: 220px; /* Set a fixed height for the squares */
-    padding: 0; /* Add padding for spacing */
-    box-sizing: border-box; /* Include padding in the element's size */
-    text-align: center; /* Center the text inside the square */
-    overflow-wrap: break-word; /* Allow long text to wrap */
-    word-break: break-word; /* Ensure long words break properly */
-    white-space: normal; /* Allow text to wrap to the next line */
-    position: relative; /* Ensure it is positioned correctly */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 650px;   /* Match .square width */
+    height: 200px;  /* Match .square height */
+    padding: 0;
+    box-sizing: border-box;
+    text-align: center;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    position: relative;
 }
-    
-    .completed div {
-    background-color: transparent; /* Ensure child divs don't override the parent's background color */
-    margin: 0; /* Remove default margin */
-    padding: 0; /* Remove default padding */
+
+.completed div {
+    width: 100%;
+    height: auto;
+    /* background-color: transparent; <-- REMOVED */
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
 }
     
     .completed div:nth-child(1) {
@@ -274,8 +314,8 @@ h1 {
 }
     
     .completed div {
-    width: 335px; /* Set a fixed width for the squares */
-    height: 220px; /* Set a fixed height for the squares */
+    width: 650px; /* Set a fixed width for the squares */
+    height: 200px; /* Set a fixed height for the squares */
     text-align: center; /* Center the text inside each line */
     overflow-wrap: break-word; /* Allow long text to wrap */
     word-break: break-word; /* Ensure long words break properly */
@@ -339,10 +379,29 @@ h1 {
 }
 
 .input-active {
-    background-color: #EF7C31; /* Keep the background color */
-    color: #000000; /* Optional: Set text color */
-    position: relative; /* Ensure it doesn't interfere with child elements */
-    z-index: 0; /* Lower the z-index to avoid overlapping the input-container */
+    background-color: #EF7C31;
+    color: #000000;
+    position: relative;
+    z-index: 0;
+    width: 650px;   /* Match .square width */
+    height: 200px;  /* Match .square height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+/* Set consistent size for all regular (non-final) squares */
+.square,
+.input-active,
+.completed:not(.final-round-square):not(.completed.final-round-square) {
+    width: 650px !important;
+    height: 215px !important;
+    min-width: 650px !important;
+    min-height: 215px !important;
+    max-width: 650px !important;
+    max-height: 215px !important;
+    box-sizing: border-box;
 }
 
 #download-winners {
@@ -400,4 +459,112 @@ h1 {
 .overlay:not(.hidden) {
     visibility: visible;
     opacity: 1;
+}
+
+#round-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin: 40px 0 20px 0;
+}
+
+.round-btn {
+    width: 120px;
+    height: 120px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: inline-block;
+}
+
+.round-btn:hover {
+    opacity: 0.8;
+}
+
+.round1-btn {
+    background-image: url('../assets/KNINE Logo.png');
+}
+
+.round2-btn {
+    background-image: url('../assets/esKNINE.png');
+}
+
+.round3-btn {
+    background-image: url('../assets/Bone Logo.png');
+}
+
+.final-round-square,
+.completed.final-round-square {
+    background-color: #EF7C31 !important;
+    width: 1300px !important;
+    max-width: 1300px !important;
+    min-width: 1300px !important;
+    height: 1175px !important;
+    min-height: 1175px !important;
+    max-height: 1175px !important;
+    margin: 0 auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.square,
+.final-round-square,
+.completed.final-round-square {
+    position: relative;
+}
+
+.input-container {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-sizing: border-box;
+    background-color: #F3A73D;
+    z-index: 10;
+}
+
+#category-row.final-round,
+.final-round-square,
+.completed.final-round-square {
+    width: 1300px !important;
+    /* max-width: 1300px !important;
+    min-width: 1300px !important;
+    height: 1175px !important;
+    min-height: 1175px !important;
+    max-height: 1175px !important; */
+    margin: 0 auto;
+}
+
+.completed.final-round-square {
+    background-color: #EF7C31 !important; /* Match winners section */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 1300px !important;
+    max-width: 1300px !important;
+    min-width: 1300px !important;
+    height: 1175px !important;
+    min-height: 1175px !important;
+    max-height: 1175px !important;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* Remove background from child divs inside completed final round square */
+.completed.final-round-square > div {
+    background: transparent !important;
 }
