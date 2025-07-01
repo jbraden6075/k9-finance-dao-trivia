@@ -7,23 +7,18 @@ let currentRound = 1;
 let allQuestions = [];
 let allCategories = [];
 
-let currentSquare = null; // <-- Add this at the top of your script
+let currentSquare = null;
 let overlay, overlayContent;
-let winnersList; // Declare at the top
+let winnersList;
 const completedSquares = new Map(); // key: `${round}_${category}_${question}`, value: {winnerName}
 
 document.addEventListener("DOMContentLoaded", async () => {
     const categoryRow = document.getElementById("category-row");
     const questionGrid = document.getElementById("question-grid");
 
-    // Create the overlay element
-    overlay = document.createElement("div");
-    overlayContent = document.createElement("div");
-    overlay.id = "question-overlay";
-    overlay.classList.add("overlay", "hidden");
-    overlayContent.id = "overlay-content";
-    overlay.appendChild(overlayContent);
-    document.body.appendChild(overlay);
+    // Overlay setup (assumes overlay exists in HTML)
+    overlay = document.getElementById("overlay");
+    overlayContent = document.getElementById("overlay-content");
 
     // Load questions from the CSV file
     allQuestions = await loadQuestions("assets/questions.csv");
@@ -32,34 +27,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     renderBoard(currentRound);
 
-    // Add event listener for Round 2 button
-    document.getElementById("round2-btn").addEventListener("click", () => {
-        currentRound = 2;
-        renderBoard(currentRound);
-    });
-
+    // Add event listener for Round buttons
     document.getElementById("round1-btn").addEventListener("click", () => {
         currentRound = 1;
         renderBoard(currentRound);
     });
-
+    document.getElementById("round2-btn").addEventListener("click", () => {
+        currentRound = 2;
+        renderBoard(currentRound);
+    });
     document.getElementById("round3-btn").addEventListener("click", () => {
         currentRound = 3;
         renderBoard(currentRound);
     });
 
-    winnersList = document.getElementById("winners-list"); // Assign inside DOMContentLoaded
+    winnersList = document.getElementById("winners-list");
 });
 
 // --- Place these at the top level, not inside DOMContentLoaded ---
 
 function showOverlay(content, onClickCallback) {
+    const overlay = document.getElementById("overlay");
+    const overlayContent = document.getElementById("overlay-content");
     overlayContent.textContent = content;
     overlay.classList.remove("hidden");
 
     const handleClick = () => {
         overlay.removeEventListener("click", handleClick);
         if (onClickCallback) onClickCallback();
+        else overlay.classList.add("hidden");
     };
 
     overlay.addEventListener("click", handleClick);
@@ -229,27 +225,6 @@ function renderBoard(round) {
         categoryRow.classList.remove("final-round");
     }
 }
-
-// Function to save winner to the server
-/*async function saveWinnerToServer(category, question, answer, winnerName) {
-    try {
-        const response = await fetch('/saveWinner', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ category, question, answer, winnerName }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to save winner: ${response.statusText}`);
-        }
-
-        console.log('Winner saved successfully to the server.');
-    } catch (error) {
-        console.error('Error saving winner to the server:', error);
-    }
-}*/
 
 // Function to generate and download the winners file
 function downloadWinnersFile() {

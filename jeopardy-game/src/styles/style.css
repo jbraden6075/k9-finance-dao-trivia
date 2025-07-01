@@ -63,7 +63,6 @@ h1 {
 
 .final-round-square,
 .completed.final-round-square {
-    background-color: #EF7C31 !important;
     width: 1300px !important;
     max-width: 1300px !important;
     min-width: 1300px !important;
@@ -71,11 +70,6 @@ h1 {
     min-height: 1175px !important;
     max-height: 1175px !important;
     margin: 0 auto;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 }
 
 .category-cell {
@@ -500,19 +494,13 @@ h1 {
 
 .final-round-square,
 .completed.final-round-square {
-    background-color: #EF7C31 !important;
     width: 1300px !important;
     max-width: 1300px !important;
     min-width: 1300px !important;
-    height: 1175px !important;
+    height: 11175px !important;
     min-height: 1175px !important;
     max-height: 1175px !important;
     margin: 0 auto;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 }
 
 .square,
@@ -557,7 +545,7 @@ h1 {
     width: 1300px !important;
     max-width: 1300px !important;
     min-width: 1300px !important;
-    height: 1175px !important;
+    height: 1000px !important;
     min-height: 1175px !important;
     max-height: 1175px !important;
     margin: 0 auto;
@@ -567,4 +555,29 @@ h1 {
 /* Remove background from child divs inside completed final round square */
 .completed.final-round-square > div {
     background: transparent !important;
+}
+
+#overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+}
+#overlay.hidden {
+    display: none;
+}
+#overlay-content {
+    background: #fff;
+    padding: 32px 24px;
+    border-radius: 10px;
+    box-shadow: 0 4px 32px #0008;
+    font-size: 2rem;
+    color: #222;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow: auto;
+    text-align: center;
 }
