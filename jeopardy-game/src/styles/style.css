@@ -53,9 +53,9 @@ h1 {
 }
 
 #category-row.final-round {
-    width: 1300px !important;
-    max-width: 1300px !important;
-    min-width: 1300px !important;
+    width: 1312px !important;
+    max-width: 1312px !important;
+    min-width: 1312px !important;
     margin: 0 auto;
     grid-template-columns: 1fr !important;
     /* No height here! */
@@ -63,9 +63,9 @@ h1 {
 
 .final-round-square,
 .completed.final-round-square {
-    width: 1300px !important;
-    max-width: 1300px !important;
-    min-width: 1300px !important;
+    width: 1312px !important;
+    max-width: 1312px !important;
+    min-width: 1312px !important;
     height: 1175px !important;
     min-height: 1175px !important;
     max-height: 1175px !important;
@@ -488,7 +488,7 @@ h1 {
 
 .final-round-square,
 .completed.final-round-square {
-    width: 1300px !important;
+    width: 1311px !important;
     height: 1100px !important;
     margin: 0 auto;
 }
@@ -518,18 +518,18 @@ h1 {
 .final-round-square,
 .completed.final-round-square {
     height: 50px !important;
-    width: 1300px !important;
+    width: 1311px !important;
     margin: 0 auto;
 }
 
 /* Final round square (uncompleted) */
 .final-round-square {
-    width: 1300px !important;
-    max-width: 1300px !important;
-    min-width: 1300px !important;
-    height: 1150px !important;         /* Shortened height */
-    min-height: 1150px !important;
-    max-height: 1150px !important;
+    width: 1311px !important;
+    max-width: 1311px !important;
+    min-width: 1311px !important;
+    height: 1115px !important;         /* Shortened height */
+    min-height: 1115px !important;
+    max-height: 1115px !important;
     margin: 0 auto;
     position: relative;
     background: linear-gradient(to bottom, #F3A73D, #D68A3D); /* Match .square */
@@ -552,10 +552,10 @@ h1 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 1300px !important;
-    height: 1150px !important;
-    min-height: 1150px !important;
-    max-height: 1150px !important;
+    width: 1311px !important;
+    height: 1115px !important;
+    min-height: 1115px !important;
+    max-height: 1115px !important;
     margin: 0 auto;
     position: relative;
     font-size: 24px;
