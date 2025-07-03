@@ -225,101 +225,57 @@ h1 {
 }
 
 .completed {
-    background-color: #EF7C31; /* Ensure the entire square has this background color */
     display: flex;
-    flex-direction: column; /* Stack the content vertically */
-    align-items: center; /* Center the content horizontally */
-    justify-content: center; /* Center the content vertically */
-    width: 335px; /* Set a fixed width for the squares */
-    height: 220px; /* Set a fixed height for the squares */
-    padding: 0; /* Add padding for spacing */
-    box-sizing: border-box; /* Include padding in the element's size */
-    text-align: center; /* Center the text inside the square */
-    overflow-wrap: break-word; /* Allow long text to wrap */
-    word-break: break-word; /* Ensure long words break properly */
-    white-space: normal; /* Allow text to wrap to the next line */
-    position: relative; /* Ensure it is positioned correctly */
-}
-    
-    .completed div {
-    background-color: transparent; /* Ensure child divs don't override the parent's background color */
-    margin: 0; /* Remove default margin */
-    padding: 0; /* Remove default padding */
-}
-    
-    .completed div:nth-child(1) {
-    display: none; /* Hide the question */
-    margin: 0; /* Remove default margin */
-    padding: 0; /* Remove default padding */
-}
-    
-    .completed div:nth-child(2) {
-    font-family: 'Manrope', sans-serif; /* Use Manrope font */
-    font-weight: 500; /* Medium 500 for the answer */
-    font-size: 16px; /* Set font size for the answer */
-    color: #000000; /* Ensure text is visible */
-    text-align: center;
-    margin: 0; /* Remove default margin */
-    padding: 0; /* Remove default padding */
-}
-    
-    .completed div:nth-child(3) {
-    font-family: 'Manrope', sans-serif; /* Use Manrope font */
-    font-weight: 600; /* Semi Bold 600 for the winner's name */
-    font-size: 24px; /* Set font size for the winner's name */
-    color: #000000; /* Ensure text is visible */
-    text-align: center;
-    margin: 0; /* Remove default margin */
-    padding: 0; /* Remove default padding */
-}
-    
-    .completed div {
-    width: 335px; /* Set a fixed width for the squares */
-    height: 220px; /* Set a fixed height for the squares */
-    text-align: center; /* Center the text inside each line */
-    overflow-wrap: break-word; /* Allow long text to wrap */
-    word-break: break-word; /* Ensure long words break properly */
-    white-space: normal; /* Allow text to wrap to the next line */
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 335px;
+    height: 220px;
     background-color: #EF7C31;
-    margin: 0; /* Remove default margin */
-    padding: 0; /* Remove default padding */
-}
-
-.completed .winner {
-    display: block; /* Ensure the winner's name is displayed */
-    font-family: 'Manrope', sans-serif; /* Use Manrope font */
-    font-weight: 600; /* Semi Bold 600 for the winner's name */
-    font-size: 24px; /* Set font size for the winner's name */
-    color: #000000; /* Ensure text is visible */
+    position: relative;
     text-align: center;
-    margin: 0; /* Remove default margin */
-    padding: 0; /* Remove default padding */
+    overflow: hidden;
 }
 
-.input-container {
+.completed-content {
     display: flex;
-    flex-direction: column; /* Stack the input box and button vertically */
-    align-items: center; /* Center the input box and button horizontally */
-    justify-content: center; /* Center the content vertically */
-    gap: 10px; /* Add spacing between the input box and button */
-    width: 100%; /* Ensure the container spans the full width of the square */
-    height: 100%; /* Ensure the container fills the square */
-    box-sizing: border-box; /* Include padding in the container's size */
-    background-color: #F3A73D; /* Add a background color for visibility */
-    position: absolute; /* Ensure it is positioned above the square */
-    z-index: 10; /* Ensure it is above other elements */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    gap: 10px; /* Space between elements */
 }
 
-.input-box {
-    background-color: #FFFFFF; /* White background */
-    width: 90%; /* Ensure the input box fits within the rectangle */
-    padding: 5px;
-    font-size: 1rem;
-    box-sizing: border-box; /* Include padding in the width */
-    border: 1px solid #ccc; /* Optional: Add a light gray border for better visibility */
-    border-radius: 5px; /* Optional: Add rounded corners */
-    color: #333; /* Optional: Set text color to dark gray for readability */
-    text-align: center; /* Center the text inside the input box */
+.k9-double-label {
+    color: #EF7C31;
+    font-size: 2em;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-align: center;
+    line-height: 1.2;
+    text-decoration: underline;
+    margin-bottom: 8px;
+    margin-top: 0;
+}
+
+.completed-answer {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    color: #000000;
+    margin: 0 0 8px 0;
+    flex-shrink: 0;
+}
+
+.completed-winner {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 24px;
+    color: #000000;
+    margin: 0;
+    flex-shrink: 0;
 }
 
 .save-button {
@@ -332,6 +288,7 @@ h1 {
     border: none; /* Remove the default border */
     border-radius: 50%; /* Make the button circular */
     cursor: pointer; /* Show a pointer cursor on hover */
+    margin-top: 0;
 }
 
 .save-button:hover {
@@ -388,7 +345,7 @@ h1 {
     font-size: 36px;
     color: #000000;
     text-align: center;
-    z-index: 1000;
+    z-index: 2002;
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s, opacity 0.3s ease;
@@ -400,4 +357,165 @@ h1 {
 .overlay:not(.hidden) {
     visibility: visible;
     opacity: 1;
+}
+
+.k9-double-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #F3A73D;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2001;
+}
+
+.k9-double-overlay.hidden {
+    display: none;
+}
+
+#k9-double-content {
+    background: #EF7C31;
+    color: #fff;
+    font-size: 5rem;
+    font-weight: bold;
+    padding: 80px 120px;
+    border-radius: 30px;
+    box-shadow: 0 8px 40px #0008;
+    transform: scale(0.1) rotateY(90deg);
+    opacity: 0;
+    animation: none;
+}
+
+.k9-double-overlay:not(.hidden) #k9-double-content {
+    animation: k9-flip-grow 2.5s cubic-bezier(.68,-0.55,.27,1.55) forwards;
+}
+
+@keyframes k9-flip-grow {
+    0% {
+        transform: scale(0.1);
+        opacity: 0;
+    }
+    20% {
+        transform: scale(0.2);
+        opacity: 1;
+    }
+    40% {
+        transform: scale(0.4);
+    }
+    60% {
+        transform: scale(0.6);
+        opacity: 1;
+    }
+    80% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    20% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+    40% {
+        transform: scale(0.6);
+    }
+    60% {
+        transform: scale(0.4);
+        opacity: 1;
+    }
+    80% {
+        transform: scale(0.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+#k9-double-logos {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Let clicks pass through */
+    z-index: 1;
+}
+
+.k9-double-logo {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background-image: url('../assets/KNINE.svg'); /* Update path if needed */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0;
+    animation: k9-logo-pop 1.2s ease-in-out forwards;
+}
+
+@keyframes k9-logo-pop {
+    0% {
+        transform: scale(0.2) rotate(-30deg);
+        opacity: 0;
+    }
+    20% {
+        transform: scale(1.2) rotate(10deg);
+        opacity: 1;
+    }
+    60% {
+        transform: scale(1) rotate(-10deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.2) rotate(30deg);
+        opacity: 0;
+    }
+}
+
+.k9-double-overlay,
+.overlay {
+    cursor: pointer;
+}
+
+.k9-double-label {
+    color: #000;
+    font-size: 2em;
+    font-weight: bold;
+    margin: 10px 0 0 0;
+    letter-spacing: 2px;
+    text-align: center;
+    line-height: 1.2;
+    text-decoration: underline; /* Add underline */
+}
+
+.completed,
+.completed * {
+    text-align: center !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    gap: 20px; /* Space between input and button */
+}
+
+.input-container input[type="text"] {
+    font-size: 1.2em;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 80%;
+    max-width: 300px;
+    box-sizing: border-box;
+    text-align: center;
+    margin-bottom: 0;
 }
