@@ -3,7 +3,13 @@ import { loadQuestions } from './csvReader.js';
 // Declare the winners array globally
 const winners = [];
 
+async function loadConfig() {
+    const response = await fetch('config.json');
+    return response.json();
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
+    const config = await loadConfig();
     const categoryRow = document.getElementById("category-row");
     const questionGrid = document.getElementById("question-grid");
     const winnersList = document.getElementById("winners-list");
@@ -150,7 +156,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Function to update the winners list
     function updateWinnersList(questionObj, winnerName) {
-        const value = questionObj.isK9Double ? 50 : 25;
+        const value = questionObj.isK9Double ? config.k9DoubleQuestionValue : config.normalQuestionValue;
 
         let winner = winners.find(w => w.winnerName === winnerName);
 
