@@ -3,7 +3,13 @@ import { loadQuestions } from './csvReader.js';
 // Declare the winners array globally
 const winners = [];
 
+async function loadConfig() {
+    const response = await fetch('config.json');
+    return response.json();
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
+    const config = await loadConfig();
     const categoryRow = document.getElementById("category-row");
     const questionGrid = document.getElementById("question-grid");
     const winnersList = document.getElementById("winners-list");
@@ -60,7 +66,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 // Add click event listener for each square
                 square.addEventListener("click", (event) => {
-                    // Prevent overlay from displaying if clicking inside input box, save button, or completed square
                     if (
                         event.target.classList.contains("input-box") ||
                         event.target.classList.contains("save-button") ||
@@ -70,18 +75,45 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
 
                     currentSquare = square;
-                    showOverlay(question.Question, () => {
-                        showOverlay(question.Answer, () => {
-                            overlay.classList.add("hidden");
-                            displayInputBox(square, question);
+
+                    if (question.isK9Double) {
+                        showK9DoubleOverlay(() => {
+                            showOverlay(question.Question, () => {
+                                showOverlay(question.Answer, () => {
+                                    overlay.classList.add("hidden");
+                                    displayInputBox(square, question);
+                                });
+                            });
                         });
-                    });
+                    } else {
+                        showOverlay(question.Question, () => {
+                            showOverlay(question.Answer, () => {
+                                overlay.classList.add("hidden");
+                                displayInputBox(square, question);
+                            });
+                        });
+                    }
                 });
+
+                if (question.isK9Double) {
+                    square.classList.add("k9-double");
+                    square.dataset.k9Double = "true";
+                }
             }
 
             questionGrid.appendChild(square);
         });
     }
+
+    // After loading questions
+    const k9DoubleIndexes = [];
+    while (k9DoubleIndexes.length < 2) {
+        const idx = Math.floor(Math.random() * questions.length);
+        if (!k9DoubleIndexes.includes(idx)) k9DoubleIndexes.push(idx);
+    }
+    questions.forEach((q, i) => {
+        q.isK9Double = k9DoubleIndexes.includes(i);
+    });
 
     // Function to show the overlay with content
     function showOverlay(content, onClickCallback) {
@@ -112,88 +144,56 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveButton.addEventListener("click", () => {
             const winnerName = inputBox.value.trim();
             if (winnerName) {
-                square.innerHTML = `
-                    <div>${question.Question}</div>
-                    <div style="font-weight: bold;">${question.Answer}</div>
-                    <div style="font-style: italic;">${winnerName}</div>
-                `;
+                updateSquare(square, question, winnerName);
                 square.classList.remove("input-active");
                 square.classList.add("completed");
 
                 // Update the winners list
-                updateWinnersList(question.Question, winnerName);
+                updateWinnersList(question, winnerName);
             }
         });
     }
 
     // Function to update the winners list
-    function updateWinnersList(question, winnerName) {
-        // Check if the winner already exists in the winners array
-        const winnerIndex = winners.findIndex(w => w.winnerName === winnerName);
+    function updateWinnersList(questionObj, winnerName) {
+        const value = questionObj.isK9Double ? config.k9DoubleQuestionValue : config.normalQuestionValue;
 
-        if (winnerIndex !== -1) {
-            // If the winner already exists, increment their win count
-            winners[winnerIndex].winCount += 1;
+        let winner = winners.find(w => w.winnerName === winnerName);
+
+        if (winner) {
+            winner.winnings.push(value);
         } else {
-            // If the winner is new, add them to the winners array
-            winners.push({ question, winnerName, winCount: 1 });
+            winner = {
+                winnerName,
+                winnings: [value]
+            };
+            winners.push(winner);
         }
 
-        // Sort the winners array by win count in descending order
-        winners.sort((a, b) => b.winCount - a.winCount);
+        winners.sort((a, b) => {
+            const aTotal = a.winnings.reduce((sum, v) => sum + v, 0);
+            const bTotal = b.winnings.reduce((sum, v) => sum + v, 0);
+            return bTotal - aTotal;
+        });
 
-        // Update the winners list in the DOM
         winnersList.innerHTML = winners
             .map((winner, index) => {
-                const formattedIndex = (index + 1).toString().padStart(2, '0'); // Add leading zero to the index
-                return `<li>${formattedIndex}. ${winner.winnerName}.....${winner.winCount}</li>`;
+                const totalDollars = winner.winnings.reduce((sum, v) => sum + v, 0);
+                const formattedIndex = String(index + 1).padStart(2, '0');
+                const dots = '.'.repeat(20 - winner.winnerName.length);
+                return `<li>${formattedIndex}) ${winner.winnerName}${dots}$${totalDollars}</li>`;
             })
             .join("");
     }
 });
 
-// Function to save winner to the server
-/*async function saveWinnerToServer(category, question, answer, winnerName) {
-    try {
-        const response = await fetch('/saveWinner', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ category, question, answer, winnerName }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to save winner: ${response.statusText}`);
-        }
-
-        console.log('Winner saved successfully to the server.');
-    } catch (error) {
-        console.error('Error saving winner to the server:', error);
-    }
-}*/
-
 // Function to generate and download the winners file
 function downloadWinnersFile() {
-    // Get the winners list from the DOM
-    const winnersList = document.querySelectorAll("#winners-list li");
-
-    // Map the winners list to an array of formatted strings
-    const winnersData = Array.from(winnersList).map((li, index) => {
-        // Extract the winner's name and win count from the text content
-        const textParts = li.textContent.split(".....");
-        const winnerName = textParts[0].replace(/^\d+\.\s*/, "").trim(); // Remove the leading index and trim spaces
-        const winCount = textParts[1]?.trim() || "0"; // Default to "0" if win count is missing
-
-        // Add a leading zero to the index if it's less than 10
-        const formattedIndex = (index + 1).toString().padStart(2, '0');
-
-        // Calculate the number of dots needed for alignment
-        const maxLineLength = 35; // Adjust this value to reduce the total line length
-        const dotsLength = maxLineLength - (formattedIndex.length + 2 + winnerName.length + winCount.length); // 2 accounts for ". "
-        const dots = '.'.repeat(Math.max(dotsLength, 3)); // Ensure at least 3 dots
-
-        return `${formattedIndex}. ${winnerName}${dots}${winCount}`;
+    const winnersData = winners.map((winner, index) => {
+        const totalDollars = winner.winnings.reduce((sum, v) => sum + v, 0);
+        const formattedIndex = String(index + 1).padStart(2, '0');
+        const dots = '.'.repeat(20 - winner.winnerName.length);
+        return `${formattedIndex}) ${winner.winnerName}${dots}$${totalDollars}`;
     });
 
     // Build the content of the .txt file
@@ -217,3 +217,64 @@ function downloadWinnersFile() {
 
 // Attach the event listener to the button
 document.getElementById("download-winners").addEventListener("click", downloadWinnersFile);
+
+// Function to show the K9 Double overlay
+function showK9DoubleOverlay(callback) {
+    const k9Overlay = document.getElementById("k9-double-overlay");
+    popKnineLogos();
+    k9Overlay.classList.remove("hidden");
+    k9Overlay.onclick = function() {
+        k9Overlay.onclick = null;
+        // Show the question overlay FIRST
+        if (callback) callback();
+        // Then hide the K9 overlay immediately after
+        k9Overlay.classList.add("hidden");
+    };
+}
+
+// Function to pop K9 logos
+function popKnineLogos() {
+    const logoContainer = document.getElementById('k9-double-logos');
+    logoContainer.innerHTML = '';
+    const logoCount = 20; // Number of logos to pop
+
+    // Central safe zone: 35% from left/top, 30% wide/tall (so 35%-65%)
+    const safeZone = { x: 35, y: 35, w: 30, h: 30 }; // percent of width/height
+
+    for (let i = 0; i < logoCount; i++) {
+        const logo = document.createElement('div');
+        logo.className = 'k9-double-logo';
+
+        let x, y;
+        // Only allow positions OUTSIDE the safe zone
+        do {
+            x = Math.random() * 100;
+            y = Math.random() * 100;
+        } while (
+            x > safeZone.x && x < (safeZone.x + safeZone.w) &&
+            y > safeZone.y && y < (safeZone.y + safeZone.h)
+        );
+
+        logo.style.left = `calc(${x}% - 40px)`; // 40px = half logo width
+        logo.style.top = `calc(${y}% - 40px)`;
+
+        // Stagger the animation
+        logo.style.animationDelay = `${Math.random() * 1.2}s`;
+
+        logoContainer.appendChild(logo);
+    }
+}
+
+// Function to update the square display
+function updateSquare(square, question, enteredValue) {
+    const isK9Double = question.isK9Double;
+
+    square.innerHTML = `
+        <div class="completed-content">
+            ${isK9Double ? `<div class="k9-double-label">K9 DOUBLE</div>` : ""}
+            <div class="completed-answer">${question.Answer}</div>
+            <div class="completed-winner">${enteredValue}</div>
+        </div>
+    `;
+    square.classList.add("completed");
+}

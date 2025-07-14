@@ -1,2 +1,3 @@
 node_modules/
 jeopardy-game/src/assets/winners.csv
+jeopardy-game/src/assets/questions*.csv
