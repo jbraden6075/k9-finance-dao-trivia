@@ -46,5 +46,35 @@
       <div id="k9-double-logos"></div>
       <div id="k9-double-content">K9 DOUBLE!</div>
     </div>
+    <div id="config-modal" class="modal">
+      <div class="modal-content">
+        <h2>Game Configuration</h2>
+        <label for="normal-value">Value of each normal question:</label>
+        <select id="normal-value">
+          <option value="1">$1</option>
+          <option value="5">$5</option>
+          <option value="10">$10</option>
+          <option value="20">$20</option>
+          <option value="25" selected>$25</option>
+        </select>
+        <br><br>
+        <label>
+          <input type="checkbox" id="enable-doubles">
+          Will there be doubles?
+        </label>
+        <div id="double-config" style="display:none; margin-top:10px;">
+          <label for="double-value">Value of each double question:</label>
+          <select id="double-value">
+            <option value="2">$2</option>
+            <option value="10">$10</option>
+            <option value="20">$20</option>
+            <option value="25">$25</option>
+            <option value="50" selected>$50</option>
+          </select>
+        </div>
+        <br>
+        <button id="start-game-btn">Start Game</button>
+      </div>
+    </div>
 </body>
 </html>
