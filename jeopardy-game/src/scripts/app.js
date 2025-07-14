@@ -143,48 +143,36 @@ document.addEventListener("DOMContentLoaded", async () => {
                 square.classList.add("completed");
 
                 // Update the winners list
-                updateWinnersList(question.Question, winnerName);
+                updateWinnersList(question, winnerName);
             }
         });
     }
 
     // Function to update the winners list
-    function updateWinnersList(questionText, winnerName) {
-        // Find the question object to check if it's a K9 Double
-        const questionObj = questions.find(q => q.Question === questionText);
+    function updateWinnersList(questionObj, winnerName) {
+        const value = questionObj.isK9Double ? 50 : 25;
 
-        // Check if the winner already exists in the winners array
         let winner = winners.find(w => w.winnerName === winnerName);
 
         if (winner) {
-            // If the winner already exists, increment their win count
-            winner.winCount += 1;
-            if (questionObj && questionObj.isK9Double) {
-                winner.k9DoubleCount = (winner.k9DoubleCount || 0) + 1;
-            }
+            winner.winnings.push(value);
         } else {
-            // If the winner is new, add them to the winners array
             winner = {
                 winnerName,
-                winCount: 1,
-                k9DoubleCount: (questionObj && questionObj.isK9Double) ? 1 : 0
+                winnings: [value]
             };
             winners.push(winner);
         }
 
-        // Sort the winners array by total winnings in descending order
         winners.sort((a, b) => {
-            const aTotal = (a.winCount - (a.k9DoubleCount || 0)) * 20 + (a.k9DoubleCount || 0) * 70;
-            const bTotal = (b.winCount - (b.k9DoubleCount || 0)) * 20 + (b.k9DoubleCount || 0) * 70;
+            const aTotal = a.winnings.reduce((sum, v) => sum + v, 0);
+            const bTotal = b.winnings.reduce((sum, v) => sum + v, 0);
             return bTotal - aTotal;
         });
 
-        // Update the winners list in the DOM
         winnersList.innerHTML = winners
             .map((winner, index) => {
-                const normalWins = winner.winCount - (winner.k9DoubleCount || 0);
-                const k9Wins = winner.k9DoubleCount || 0;
-                const totalDollars = (normalWins * 20) + (k9Wins * 70);
+                const totalDollars = winner.winnings.reduce((sum, v) => sum + v, 0);
                 const formattedIndex = String(index + 1).padStart(2, '0');
                 const dots = '.'.repeat(20 - winner.winnerName.length);
                 return `<li>${formattedIndex}) ${winner.winnerName}${dots}$${totalDollars}</li>`;
@@ -193,34 +181,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-// Function to save winner to the server
-/*async function saveWinnerToServer(category, question, answer, winnerName) {
-    try {
-        const response = await fetch('/saveWinner', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ category, question, answer, winnerName }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to save winner: ${response.statusText}`);
-        }
-
-        console.log('Winner saved successfully to the server.');
-    } catch (error) {
-        console.error('Error saving winner to the server:', error);
-    }
-}*/
-
 // Function to generate and download the winners file
 function downloadWinnersFile() {
-    // Use the in-memory winners array, not the DOM, for accurate data
     const winnersData = winners.map((winner, index) => {
-        const normalWins = winner.winCount - (winner.k9DoubleCount || 0);
-        const k9Wins = winner.k9DoubleCount || 0;
-        const totalDollars = (normalWins * 20) + (k9Wins * 70);
+        const totalDollars = winner.winnings.reduce((sum, v) => sum + v, 0);
         const formattedIndex = String(index + 1).padStart(2, '0');
         const dots = '.'.repeat(20 - winner.winnerName.length);
         return `${formattedIndex}) ${winner.winnerName}${dots}$${totalDollars}`;
