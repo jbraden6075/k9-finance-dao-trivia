@@ -8,184 +8,220 @@ async function loadConfig() {
     return response.json();
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const config = await loadConfig();
-    const categoryRow = document.getElementById("category-row");
-    const questionGrid = document.getElementById("question-grid");
-    const winnersList = document.getElementById("winners-list");
-    const overlay = document.createElement("div");
-    const overlayContent = document.createElement("div");
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("config-modal");
+    const enableDoubles = document.getElementById("enable-doubles");
+    const doubleConfig = document.getElementById("double-config");
+    const startBtn = document.getElementById("start-game-btn");
 
-    // Create the overlay element
-    overlay.id = "question-overlay";
-    overlay.classList.add("overlay", "hidden");
-    overlayContent.id = "overlay-content";
-    overlay.appendChild(overlayContent);
-    document.body.appendChild(overlay);
-
-    let currentSquare = null;
-
-    // Load questions from the CSV file
-    const questions = await loadQuestions("assets/questions.csv");
-    console.log("Loaded questions:", questions);
-
-    // Extract unique categories
-    const categories = [...new Set(questions.map(q => q.Category))];
-
-    // Set up the category row and question grid
-    categoryRow.style.display = "grid";
-    categoryRow.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
-    questionGrid.style.display = "grid";
-    questionGrid.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
-
-    // Populate categories and questions
-    categories.forEach(category => {
-        const categoryCell = document.createElement("div");
-        categoryCell.classList.add("category-cell");
-        const displayName = category.replace(/_/g, ' ');
-        categoryCell.textContent = displayName;
-        if (displayName.includes(' ')) {
-            categoryCell.classList.add('multi-word');
-        }
-        categoryRow.appendChild(categoryCell);
+    // Show/hide double config
+    enableDoubles.addEventListener("change", () => {
+        doubleConfig.style.display = enableDoubles.checked ? "block" : "none";
     });
 
-    for (let rowIndex = 0; rowIndex < 5; rowIndex++) {
+    startBtn.addEventListener("click", () => {
+        const config = {
+            normalQuestionValue: parseInt(document.getElementById("normal-value").value, 10),
+            k9DoubleQuestionValue: enableDoubles.checked ? parseInt(document.getElementById("double-value").value, 10) : null,
+            enableDoubles: enableDoubles.checked
+        };
+        modal.style.display = "none";
+        startApp(config); // Pass config to your main game logic
+    });
+
+    // Show modal on load
+    modal.style.display = "flex";
+});
+
+// Example main game logic function
+function startApp(config) {
+    (async () => {
+        const categoryRow = document.getElementById("category-row");
+        const questionGrid = document.getElementById("question-grid");
+        const winnersList = document.getElementById("winners-list");
+        const overlay = document.createElement("div");
+        const overlayContent = document.createElement("div");
+
+        // Create the overlay element
+        overlay.id = "question-overlay";
+        overlay.classList.add("overlay", "hidden");
+        overlayContent.id = "overlay-content";
+        overlay.appendChild(overlayContent);
+        document.body.appendChild(overlay);
+
+        let currentSquare = null;
+
+        // Load questions from the CSV file
+        const questions = await loadQuestions("assets/questions.csv");
+
+        if (config.enableDoubles) {
+            // Assign K9 Double questions randomly
+            const k9DoubleIndexes = [];
+            while (k9DoubleIndexes.length < 2) {
+                const idx = Math.floor(Math.random() * questions.length);
+                if (!k9DoubleIndexes.includes(idx)) k9DoubleIndexes.push(idx);
+            }
+            questions.forEach((q, i) => {
+                q.isK9Double = k9DoubleIndexes.includes(i);
+            });
+        } else {
+            // No doubles: set all isK9Double to false
+            questions.forEach(q => {
+                q.isK9Double = false;
+            });
+        }
+
+        // Log the questions array to the console
+        console.log("Questions array:", questions);
+
+        // Extract unique categories
+        const categories = [...new Set(questions.map(q => q.Category))];
+
+        // Set up the category row and question grid
+        categoryRow.style.display = "grid";
+        categoryRow.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
+        questionGrid.style.display = "grid";
+        questionGrid.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
+
+        // Populate categories and questions
         categories.forEach(category => {
-            const square = document.createElement("div");
-            square.classList.add("square");
-            square.textContent = rowIndex + 1;
+            const categoryCell = document.createElement("div");
+            categoryCell.classList.add("category-cell");
+            const displayName = category.replace(/_/g, ' ');
+            categoryCell.textContent = displayName;
+            if (displayName.includes(' ')) {
+                categoryCell.classList.add('multi-word');
+            }
+            categoryRow.appendChild(categoryCell);
+        });
 
-            const categoryQuestions = questions.filter(q => q.Category === category);
-            const question = categoryQuestions[rowIndex];
+        for (let rowIndex = 0; rowIndex < 5; rowIndex++) {
+            categories.forEach(category => {
+                const square = document.createElement("div");
+                square.classList.add("square");
+                square.textContent = rowIndex + 1;
 
-            if (question) {
-                square.dataset.category = category;
-                square.dataset.question = question.Question;
-                square.dataset.answer = question.Answer;
+                const categoryQuestions = questions.filter(q => q.Category === category);
+                const question = categoryQuestions[rowIndex];
 
-                // Add click event listener for each square
-                square.addEventListener("click", (event) => {
-                    if (
-                        event.target.classList.contains("input-box") ||
-                        event.target.classList.contains("save-button") ||
-                        square.classList.contains("completed")
-                    ) {
-                        return;
-                    }
+                if (question) {
+                    square.dataset.category = category;
+                    square.dataset.question = question.Question;
+                    square.dataset.answer = question.Answer;
 
-                    currentSquare = square;
+                    // Add click event listener for each square
+                    square.addEventListener("click", (event) => {
+                        if (
+                            event.target.classList.contains("input-box") ||
+                            event.target.classList.contains("save-button") ||
+                            square.classList.contains("completed")
+                        ) {
+                            return;
+                        }
 
-                    if (question.isK9Double) {
-                        showK9DoubleOverlay(() => {
+                        currentSquare = square;
+
+                        if (question.isK9Double) {
+                            showK9DoubleOverlay(() => {
+                                showOverlay(question.Question, () => {
+                                    showOverlay(question.Answer, () => {
+                                        overlay.classList.add("hidden");
+                                        displayInputBox(square, question);
+                                    });
+                                });
+                            });
+                        } else {
                             showOverlay(question.Question, () => {
                                 showOverlay(question.Answer, () => {
                                     overlay.classList.add("hidden");
                                     displayInputBox(square, question);
                                 });
                             });
-                        });
-                    } else {
-                        showOverlay(question.Question, () => {
-                            showOverlay(question.Answer, () => {
-                                overlay.classList.add("hidden");
-                                displayInputBox(square, question);
-                            });
-                        });
+                        }
+                    });
+
+                    if (question.isK9Double) {
+                        square.classList.add("k9-double");
+                        square.dataset.k9Double = "true";
                     }
-                });
-
-                if (question.isK9Double) {
-                    square.classList.add("k9-double");
-                    square.dataset.k9Double = "true";
                 }
-            }
 
-            questionGrid.appendChild(square);
-        });
-    }
-
-    // After loading questions
-    const k9DoubleIndexes = [];
-    while (k9DoubleIndexes.length < 2) {
-        const idx = Math.floor(Math.random() * questions.length);
-        if (!k9DoubleIndexes.includes(idx)) k9DoubleIndexes.push(idx);
-    }
-    questions.forEach((q, i) => {
-        q.isK9Double = k9DoubleIndexes.includes(i);
-    });
-
-    // Function to show the overlay with content
-    function showOverlay(content, onClickCallback) {
-        overlayContent.textContent = content;
-        overlay.classList.remove("hidden");
-
-        const handleClick = () => {
-            overlay.removeEventListener("click", handleClick);
-            if (onClickCallback) onClickCallback();
-        };
-
-        overlay.addEventListener("click", handleClick);
-    }
-
-    // Function to display the input box and save button
-    function displayInputBox(square, question) {
-        square.innerHTML = `
-            <div class="input-container">
-                <input type="text" class="input-box" placeholder="Enter winner's name">
-                <button class="save-button"></button>
-            </div>
-        `;
-        square.classList.add("input-active");
-
-        const saveButton = square.querySelector(".save-button");
-        const inputBox = square.querySelector(".input-box");
-
-        saveButton.addEventListener("click", () => {
-            const winnerName = inputBox.value.trim();
-            if (winnerName) {
-                updateSquare(square, question, winnerName);
-                square.classList.remove("input-active");
-                square.classList.add("completed");
-
-                // Update the winners list
-                updateWinnersList(question, winnerName);
-            }
-        });
-    }
-
-    // Function to update the winners list
-    function updateWinnersList(questionObj, winnerName) {
-        const value = questionObj.isK9Double ? config.k9DoubleQuestionValue : config.normalQuestionValue;
-
-        let winner = winners.find(w => w.winnerName === winnerName);
-
-        if (winner) {
-            winner.winnings.push(value);
-        } else {
-            winner = {
-                winnerName,
-                winnings: [value]
-            };
-            winners.push(winner);
+                questionGrid.appendChild(square);
+            });
         }
 
-        winners.sort((a, b) => {
-            const aTotal = a.winnings.reduce((sum, v) => sum + v, 0);
-            const bTotal = b.winnings.reduce((sum, v) => sum + v, 0);
-            return bTotal - aTotal;
-        });
+        // Function to show the overlay with content
+        function showOverlay(content, onClickCallback) {
+            overlayContent.textContent = content;
+            overlay.classList.remove("hidden");
 
-        winnersList.innerHTML = winners
-            .map((winner, index) => {
-                const totalDollars = winner.winnings.reduce((sum, v) => sum + v, 0);
-                const formattedIndex = String(index + 1).padStart(2, '0');
-                const dots = '.'.repeat(20 - winner.winnerName.length);
-                return `<li>${formattedIndex}) ${winner.winnerName}${dots}$${totalDollars}</li>`;
-            })
-            .join("");
-    }
-});
+            const handleClick = () => {
+                overlay.removeEventListener("click", handleClick);
+                if (onClickCallback) onClickCallback();
+            };
+
+            overlay.addEventListener("click", handleClick);
+        }
+
+        // Function to display the input box and save button
+        function displayInputBox(square, question) {
+            square.innerHTML = `
+                <div class="input-container">
+                    <input type="text" class="input-box" placeholder="Enter winner's name">
+                    <button class="save-button"></button>
+                </div>
+            `;
+            square.classList.add("input-active");
+
+            const saveButton = square.querySelector(".save-button");
+            const inputBox = square.querySelector(".input-box");
+
+            saveButton.addEventListener("click", () => {
+                const winnerName = inputBox.value.trim();
+                if (winnerName) {
+                    updateSquare(square, question, winnerName);
+                    square.classList.remove("input-active");
+                    square.classList.add("completed");
+
+                    // Update the winners list
+                    updateWinnersList(question, winnerName);
+                }
+            });
+        }
+
+        // Function to update the winners list
+        function updateWinnersList(questionObj, winnerName) {
+            const value = questionObj.isK9Double ? config.k9DoubleQuestionValue : config.normalQuestionValue;
+
+            let winner = winners.find(w => w.winnerName === winnerName);
+
+            if (winner) {
+                winner.winnings.push(value);
+            } else {
+                winner = {
+                    winnerName,
+                    winnings: [value]
+                };
+                winners.push(winner);
+            }
+
+            winners.sort((a, b) => {
+                const aTotal = a.winnings.reduce((sum, v) => sum + v, 0);
+                const bTotal = b.winnings.reduce((sum, v) => sum + v, 0);
+                return bTotal - aTotal;
+            });
+
+            winnersList.innerHTML = winners
+                .map((winner, index) => {
+                    const totalDollars = winner.winnings.reduce((sum, v) => sum + v, 0);
+                    const formattedIndex = String(index + 1).padStart(2, '0');
+                    const dots = '.'.repeat(20 - winner.winnerName.length);
+                    return `<li>${formattedIndex}) ${winner.winnerName}${dots}$${totalDollars}</li>`;
+                })
+                .join("");
+        }
+    })();
+}
 
 // Function to generate and download the winners file
 function downloadWinnersFile() {
