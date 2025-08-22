@@ -393,30 +393,53 @@ function showQuestionSequence(question) {
  * @param {Function} callback - Callback to execute after overlay
  */
 function showK9DoubleOverlay(callback) {
+    // Add animated KNINE SVGs
+    addAnimatedKNINEs();
+    
     k9DoubleOverlay.classList.remove("hidden");
     
     setTimeout(() => {
-        popK9Logos();
+        // Remove the placeholder div and show the main content
+        const placeholderDiv = k9DoubleOverlay.querySelector('#k9-double-logos div');
+        if (placeholderDiv) {
+            placeholderDiv.style.display = 'block';
+        }
     }, 500);
     
     k9DoubleOverlay.onclick = () => {
         k9DoubleOverlay.classList.add("hidden");
         k9DoubleOverlay.onclick = null;
+        
+        // Remove animated KNINE SVGs
+        removeAnimatedKNINEs();
+        
         callback();
     };
 }
 
 /**
- * Animate K9 logos with pop effect
+ * Add animated KNINE SVG elements to the K9 double overlay
  */
-function popK9Logos() {
-    const logos = document.querySelectorAll('.k9-double-logo');
+function addAnimatedKNINEs() {
+    // Remove any existing animated KNINEs first
+    removeAnimatedKNINEs();
     
-    logos.forEach((logo, index) => {
-        setTimeout(() => {
-            logo.style.animationDelay = `${index * 0.2}s`;
-        }, index * 200);
-    });
+    // Create 12 animated KNINE SVGs positioned around the edges for more coverage
+    for (let i = 0; i < 12; i++) {
+        const knineImg = document.createElement('img');
+        knineImg.src = 'assets/KNINE.svg';
+        knineImg.classList.add('animated-knine');
+        knineImg.alt = 'KNINE';
+        k9DoubleOverlay.appendChild(knineImg);
+    }
+}
+
+/**
+ * Remove animated KNINE SVG elements from the K9 double overlay
+ */
+function removeAnimatedKNINEs() {
+    const animatedKNINEs = k9DoubleOverlay.querySelectorAll('.animated-knine');
+    animatedKNINEs.forEach(knine => knine.remove());
 }
 
 /**
@@ -446,8 +469,11 @@ function hideOverlay() {
  * @param {Object} question - Question data
  */
 function showInputBox(square, question) {
-    // Remove any existing click handlers from the square
-    square.removeEventListener("click", handleSquareClick);
+    // Remove the click event listener properly
+    if (square.clickHandler) {
+        square.removeEventListener("click", square.clickHandler);
+        square.clickHandler = null;
+    }
     
     const inputContainer = createInputContainer();
     
@@ -455,7 +481,7 @@ function showInputBox(square, question) {
     square.appendChild(inputContainer);
     square.classList.add("input-active");
     
-    // Don't clone - just update the currentSquare reference
+    // Update the currentSquare reference
     currentSquare = square;
     
     const input = inputContainer.querySelector('input[type="text"]');
@@ -464,6 +490,16 @@ function showInputBox(square, question) {
     // Re-setup the handlers on the new elements
     const saveButton = inputContainer.querySelector('.save-button');
     setupInputHandlers(input, saveButton);
+    
+    // Prevent the input container from triggering any click events on the square
+    inputContainer.addEventListener('click', (event) => {
+        event.stopPropagation();
+    });
+    
+    // Prevent the input field from triggering any click events on the square
+    input.addEventListener('click', (event) => {
+        event.stopPropagation();
+    });
 }
 
 /**
@@ -500,7 +536,7 @@ function createInputContainer() {
  */
 function setupInputHandlers(input, saveButton) {
     const handleSave = (event) => {
-        // Prevent event bubbling to avoid triggering the square's click event
+        // Prevent event bubbling
         if (event) {
             event.stopPropagation();
             event.preventDefault();
@@ -522,10 +558,6 @@ function setupInputHandlers(input, saveButton) {
         }
     };
     
-    // Remove any existing listeners first
-    saveButton.removeEventListener("click", handleSave);
-    input.removeEventListener("keypress", handleSave);
-    
     // Add the event listeners
     saveButton.addEventListener("click", handleSave);
     input.addEventListener("keypress", (e) => {
@@ -534,6 +566,15 @@ function setupInputHandlers(input, saveButton) {
             e.preventDefault();
             handleSave(e);
         }
+    });
+    
+    // Prevent input focus/click from bubbling
+    input.addEventListener("focus", (e) => {
+        e.stopPropagation();
+    });
+    
+    input.addEventListener("click", (e) => {
+        e.stopPropagation();
     });
 }
 

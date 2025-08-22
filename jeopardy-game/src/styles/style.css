@@ -292,12 +292,12 @@ header h1 {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: #F3A73D; /* Gold background instead of translucent black */
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    color: white;
+    color: black; /* Change text color to black for better contrast on gold */
     font-size: 2rem;
     text-align: center;
     padding: 20px;
@@ -314,16 +314,233 @@ header h1 {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: #F3A73D; /* Gold background instead of translucent black */
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1001;
     cursor: pointer;
+    overflow: hidden; /* Hide overflowing animated elements */
 }
 
 .k9-double-overlay.hidden {
     display: none;
+}
+
+/* Animated KNINE SVG elements - larger base size */
+.animated-knine {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1002;
+}
+
+/* More positions around the edges to avoid center text */
+.animated-knine:nth-child(1) {
+    animation: pop-scale-1 1.5s ease-in-out infinite;
+    top: 5%;
+    left: 3%;
+}
+
+.animated-knine:nth-child(2) {
+    animation: pop-scale-2 2s ease-in-out infinite;
+    top: 8%;
+    right: 5%;
+}
+
+.animated-knine:nth-child(3) {
+    animation: pop-scale-3 1.8s ease-in-out infinite;
+    bottom: 15%;
+    left: 8%;
+}
+
+.animated-knine:nth-child(4) {
+    animation: pop-scale-4 2.2s ease-in-out infinite;
+    top: 65%;
+    right: 10%;
+}
+
+.animated-knine:nth-child(5) {
+    animation: pop-scale-5 1.7s ease-in-out infinite;
+    bottom: 10%;
+    left: 75%;
+}
+
+.animated-knine:nth-child(6) {
+    animation: pop-scale-6 2.1s ease-in-out infinite;
+    top: 20%;
+    right: 70%;
+}
+
+.animated-knine:nth-child(7) {
+    animation: pop-scale-7 1.6s ease-in-out infinite;
+    bottom: 55%;
+    left: 5%;
+}
+
+.animated-knine:nth-child(8) {
+    animation: pop-scale-8 2.3s ease-in-out infinite;
+    top: 75%;
+    right: 15%;
+}
+
+.animated-knine:nth-child(9) {
+    animation: pop-scale-9 1.9s ease-in-out infinite;
+    top: 12%;
+    left: 85%;
+}
+
+.animated-knine:nth-child(10) {
+    animation: pop-scale-10 1.4s ease-in-out infinite;
+    bottom: 35%;
+    right: 80%;
+}
+
+.animated-knine:nth-child(11) {
+    animation: pop-scale-11 2.4s ease-in-out infinite;
+    top: 45%;
+    left: 2%;
+}
+
+.animated-knine:nth-child(12) {
+    animation: pop-scale-12 1.3s ease-in-out infinite;
+    bottom: 8%;
+    right: 3%;
+}
+
+/* Faster, larger pop and scale animations */
+@keyframes pop-scale-1 {
+    0%, 15%, 85%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    40%, 60% {
+        transform: scale(3) rotate(360deg);
+        opacity: 0.9;
+    }
+}
+
+@keyframes pop-scale-2 {
+    0%, 10%, 90%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    35%, 65% {
+        transform: scale(3.5) rotate(-180deg);
+        opacity: 0.8;
+    }
+}
+
+@keyframes pop-scale-3 {
+    0%, 20%, 80%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    45%, 55% {
+        transform: scale(2.8) rotate(270deg);
+        opacity: 1;
+    }
+}
+
+@keyframes pop-scale-4 {
+    0%, 25%, 75%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(4) rotate(720deg);
+        opacity: 0.7;
+    }
+}
+
+@keyframes pop-scale-5 {
+    0%, 5%, 95%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    30%, 70% {
+        transform: scale(3.2) rotate(-360deg);
+        opacity: 0.9;
+    }
+}
+
+@keyframes pop-scale-6 {
+    0%, 30%, 70%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(4.5) rotate(180deg);
+        opacity: 0.8;
+    }
+}
+
+@keyframes pop-scale-7 {
+    0%, 35%, 65%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(3.8) rotate(-90deg);
+        opacity: 1;
+    }
+}
+
+@keyframes pop-scale-8 {
+    0%, 12%, 88%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    40%, 60% {
+        transform: scale(3.3) rotate(450deg);
+        opacity: 0.9;
+    }
+}
+
+@keyframes pop-scale-9 {
+    0%, 18%, 82%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    45%, 55% {
+        transform: scale(4.2) rotate(-270deg);
+        opacity: 0.8;
+    }
+}
+
+@keyframes pop-scale-10 {
+    0%, 8%, 92%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    35%, 65% {
+        transform: scale(3.7) rotate(540deg);
+        opacity: 1;
+    }
+}
+
+@keyframes pop-scale-11 {
+    0%, 22%, 78%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(5) rotate(-180deg);
+        opacity: 0.7;
+    }
+}
+
+@keyframes pop-scale-12 {
+    0%, 6%, 94%, 100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    30%, 70% {
+        transform: scale(4.8) rotate(630deg);
+        opacity: 0.9;
+    }
 }
 
 #k9-double-content {
