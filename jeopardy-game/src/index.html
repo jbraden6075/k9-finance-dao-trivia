@@ -8,7 +8,7 @@
 </head>
 <body>
     <header>
-        <img id="k9-banner" src="assets/k9-banner.png" alt="K9 Finance DAO Banner">
+        <img id="k9-banner" src="assets/K9 Finance Banner.png" alt="K9 Finance DAO Banner">
     </header>
 
     <main id="game-container">
@@ -20,7 +20,6 @@
         <aside id="winners-section">
             <h2>Winners</h2>
             <ul id="winners-list"></ul>
-            <!-- Replace button with knBONE Logo image -->
             <img id="download-winners" src="assets/knBONE Logo.png" alt="Download Winners" title="Download Winners">
         </aside>
     </main>
@@ -32,6 +31,7 @@
     <div id="k9-double-overlay" class="k9-double-overlay hidden">
         <div id="k9-double-content">
             <div id="k9-double-logos">
+                <div style="color: white; font-size: 48px; font-weight: bold;">K9 DOUBLE!</div>
             </div>
         </div>
     </div>
@@ -40,18 +40,29 @@
         <div class="modal-content">
             <h2>Game Configuration</h2>
             
+            <label for="question-value">Question Value:</label>
+            <select id="question-value">
+                <option value="1">$1</option>
+                <option value="5">$5</option>
+                <option value="10">$10</option>
+                <option value="15">$15</option>
+                <option value="20">$20</option>
+                <option value="25" selected>$25</option>
+            </select>
+            
             <label for="enable-doubles">
                 <input type="checkbox" id="enable-doubles"> Enable K9 Doubles
             </label>
             
-            <div id="double-config">
-                <label for="double-value">Number of K9 Doubles:</label>
-                <select id="double-value">
-                    <option value="1">1</option>
-                    <option value="2" selected>2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
+            <div id="double-config" style="display: none;">
+                <label for="k9-double-value">K9 Double Value:</label>
+                <select id="k9-double-value">
+                    <option value="2">$2</option>
+                    <option value="10">$10</option>
+                    <option value="20">$20</option>
+                    <option value="30">$30</option>
+                    <option value="40">$40</option>
+                    <option value="50" selected>$50</option>
                 </select>
             </div>
             

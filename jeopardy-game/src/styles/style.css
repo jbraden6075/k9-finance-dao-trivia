@@ -217,6 +217,13 @@ header h1 {
     background-color: var(--primary-orange);
     flex-direction: column;
     position: relative;
+    cursor: default !important; /* Force default cursor */
+    pointer-events: none; /* Disable all pointer interactions */
+}
+
+.completed:hover {
+    transform: none !important; /* Disable hover transform */
+    box-shadow: var(--shadow), var(--inset-shadow) !important; /* Keep original shadow */
 }
 
 .completed-content {
@@ -228,6 +235,7 @@ header h1 {
     width: 100%;
     text-align: center;
     gap: 5px;
+    padding: 5px;
 }
 
 .k9-double-label {
@@ -235,7 +243,7 @@ header h1 {
     color: #000;
     padding: 4px 8px;
     border-radius: 3px;
-    font-size: 0.7em;
+    font-size: 1.2em; /* Same size as input text (winner name) */
     font-weight: bold;
     margin-bottom: 5px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
@@ -243,13 +251,14 @@ header h1 {
 }
 
 .completed-answer {
-    font-size: 0.9em;
+    font-size: 1.0em; /* Smaller than input text */
     margin-bottom: 5px;
     font-weight: bold;
+    color: var(--text-color);
 }
 
 .completed-winner {
-    font-size: 0.8em;
+    font-size: 1.2em; /* Larger input text */
     color: #2c5530;
     font-weight: bold;
 }
@@ -479,4 +488,15 @@ header h1 {
     max-width: 300px;
     text-align: center;
     margin-bottom: 0;
+}
+
+#question-value,
+#k9-double-value {
+    max-width: 120px;
+    font-size: 1.1em;
+    margin: 0 auto;
+    display: block;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
 }

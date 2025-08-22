@@ -52,6 +52,7 @@ function cacheElements() {
  */
 function setupEventListeners() {
     elements.enableDoubles.addEventListener("change", toggleDoubleConfig);
+    document.getElementById("question-value").addEventListener("change", updateK9DoubleValue);
     elements.startBtn.addEventListener("click", handleStartGame);
     elements.downloadBtn.addEventListener("click", downloadWinnersFile);
 }
@@ -62,6 +63,17 @@ function setupEventListeners() {
 function toggleDoubleConfig() {
     const isEnabled = elements.enableDoubles.checked;
     elements.doubleConfig.style.display = isEnabled ? "block" : "none";
+}
+
+/**
+ * Update K9 Double Value dropdown to match Question Value selection
+ */
+function updateK9DoubleValue() {
+    const questionValueSelect = document.getElementById("question-value");
+    const k9DoubleValueSelect = document.getElementById("k9-double-value");
+    
+    // Set the K9 double value dropdown to match the same index as question value
+    k9DoubleValueSelect.selectedIndex = questionValueSelect.selectedIndex;
 }
 
 /**
@@ -79,8 +91,10 @@ function handleStartGame() {
  */
 function getGameConfig() {
     return {
+        questionValue: parseInt(document.getElementById("question-value").value, 10),
         enableDoubles: elements.enableDoubles.checked,
-        doubleValue: parseInt(document.getElementById("double-value").value, 10)
+        // Remove the doubleValue reference since the dropdown doesn't exist
+        k9DoubleValue: parseInt(document.getElementById("k9-double-value").value, 10)
     };
 }
 
@@ -109,10 +123,24 @@ async function startGame(config) {
         setupGameBoard(gameData);
         
         console.log("Game started with configuration:", config);
-        console.log("Questions loaded:", questions.length);
     } catch (error) {
         console.error("Error starting game:", error);
     }
+}
+
+/**
+ * Mark questions as K9 doubles
+ * @param {Array} questions - Array of questions
+ * @param {Array} indexes - Indexes to mark as doubles
+ * @returns {Array} Questions with K9 double flags
+ */
+function markK9Doubles(questions, indexes) {
+    console.log("K9 Double indexes selected:", indexes); // Debug log
+    
+    return questions.map((question, index) => ({
+        ...question,
+        isK9Double: indexes.includes(index)
+    }));
 }
 
 /**
@@ -126,7 +154,10 @@ function prepareGameData(questions, config) {
     const k9DoubleIndexes = [];
     
     if (config.enableDoubles) {
-        k9DoubleIndexes.push(...generateK9DoubleIndexes(questions.length, config.doubleValue));
+        // Use a default value of 2 K9 doubles since there's no dropdown
+        const defaultDoubleCount = 2;
+        k9DoubleIndexes.push(...generateK9DoubleIndexes(questions.length, defaultDoubleCount));
+        console.log("Generated K9 double indexes:", k9DoubleIndexes);
         processedQuestions = markK9Doubles(processedQuestions, k9DoubleIndexes);
     }
     
@@ -146,7 +177,10 @@ function prepareGameData(questions, config) {
 function generateK9DoubleIndexes(totalQuestions, doubleCount) {
     const indexes = [];
     
-    while (indexes.length < doubleCount) {
+    // Make sure we don't try to generate more doubles than questions
+    const maxDoubles = Math.min(doubleCount, totalQuestions);
+    
+    while (indexes.length < maxDoubles) {
         const randomIndex = Math.floor(Math.random() * totalQuestions);
         
         if (!indexes.includes(randomIndex)) {
@@ -154,20 +188,8 @@ function generateK9DoubleIndexes(totalQuestions, doubleCount) {
         }
     }
     
+    console.log(`Generated ${indexes.length} K9 double indexes out of ${totalQuestions} total questions:`, indexes);
     return indexes;
-}
-
-/**
- * Mark questions as K9 doubles
- * @param {Array} questions - Array of questions
- * @param {Array} indexes - Indexes to mark as doubles
- * @returns {Array} Questions with K9 double flags
- */
-function markK9Doubles(questions, indexes) {
-    return questions.map((question, index) => ({
-        ...question,
-        isK9Double: indexes.includes(index)
-    }));
 }
 
 /**
@@ -185,6 +207,9 @@ function extractUniqueCategories(questions) {
  */
 function setupGameBoard(gameData) {
     const { questions, categories } = gameData;
+    
+    // Log the questions array to console
+    console.log("Questions array:", questions);
     
     const maxQuestionsPerCategory = calculateMaxQuestionsPerCategory(questions, categories);
     
@@ -305,7 +330,10 @@ function setupQuestionSquare(square, question, rowIndex) {
         square.dataset.isK9Double = "true";
     }
     
-    square.addEventListener("click", () => handleSquareClick(square, question));
+    // Store the click handler so we can remove it later
+    const clickHandler = () => handleSquareClick(square, question);
+    square.clickHandler = clickHandler;
+    square.addEventListener("click", clickHandler);
 }
 
 /**
@@ -439,46 +467,6 @@ function showInputBox(square, question) {
 }
 
 /**
- * Set up input field and save button event handlers
- * @param {HTMLElement} input - Input field
- * @param {HTMLElement} saveButton - Save button
- */
-function setupInputHandlers(input, saveButton) {
-    const handleSave = (event) => {
-        // Prevent event bubbling to avoid triggering the square's click event
-        if (event) {
-            event.stopPropagation();
-            event.preventDefault();
-        }
-        
-        const enteredValue = input.value.trim();
-        
-        if (enteredValue) {
-            saveWinner(enteredValue);
-            updateSquareDisplay(currentSquare, {
-                question: currentSquare.dataset.question,
-                answer: currentSquare.dataset.answer,
-                isK9Double: currentSquare.dataset.isK9Double === "true"
-            }, enteredValue);
-        }
-    };
-    
-    // Remove any existing listeners first
-    saveButton.removeEventListener("click", handleSave);
-    input.removeEventListener("keypress", handleSave);
-    
-    // Add the event listeners
-    saveButton.addEventListener("click", handleSave);
-    input.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-            e.stopPropagation();
-            e.preventDefault();
-            handleSave(e);
-        }
-    });
-}
-
-/**
  * Create input container with input field and save button
  * @returns {HTMLElement} Input container element
  */
@@ -506,64 +494,47 @@ function createInputContainer() {
 }
 
 /**
- * Save winner to the winners list
- * @param {string} winnerName - Name of the winner
+ * Set up input field and save button event handlers
+ * @param {HTMLElement} input - Input field
+ * @param {HTMLElement} saveButton - Save button
  */
-function saveWinner(winnerName) {
-    const category = currentSquare.dataset.category;
-    const question = currentSquare.dataset.question;
-    const answer = currentSquare.dataset.answer;
-    const isK9Double = currentSquare.dataset.isK9Double === "true";
-    
-    const winnerEntry = {
-        name: winnerName,
-        category,
-        question,
-        answer,
-        isK9Double
+function setupInputHandlers(input, saveButton) {
+    const handleSave = (event) => {
+        // Prevent event bubbling to avoid triggering the square's click event
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        
+        const enteredValue = input.value.trim();
+        
+        if (enteredValue) {
+            saveWinner(enteredValue);
+            
+            // Create question object with proper data
+            const questionData = {
+                question: currentSquare.dataset.question,
+                answer: currentSquare.dataset.answer,
+                isK9Double: currentSquare.dataset.isK9Double === "true"
+            };
+            
+            updateSquareDisplay(currentSquare, questionData, enteredValue);
+        }
     };
     
-    winners.push(winnerEntry);
-    updateWinnersList();
+    // Remove any existing listeners first
+    saveButton.removeEventListener("click", handleSave);
+    input.removeEventListener("keypress", handleSave);
     
-    console.log("Winner saved:", winnerEntry);
-}
-
-/**
- * Update the winners list display
- */
-function updateWinnersList() {
-    const winnersList = document.getElementById("winners-list");
-    
-    // Calculate total winnings per person
-    const winnerTotals = {};
-    
-    winners.forEach(winner => {
-        const pointValue = winner.isK9Double ? 50 : 25;
-        
-        if (winnerTotals[winner.name]) {
-            winnerTotals[winner.name] += pointValue;
-        } else {
-            winnerTotals[winner.name] = pointValue;
+    // Add the event listeners
+    saveButton.addEventListener("click", handleSave);
+    input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            e.stopPropagation();
+            e.preventDefault();
+            handleSave(e);
         }
     });
-    
-    // Convert to array and sort by total winnings (highest first)
-    const sortedWinners = Object.entries(winnerTotals)
-        .map(([name, total]) => ({ name, total }))
-        .sort((a, b) => b.total - a.total);
-    
-    winnersList.innerHTML = sortedWinners
-        .map((winner, index) => {
-            // Create dots to fill space between name and value
-            const nameLength = winner.name.length;
-            const totalWidth = 25; // Adjust this number based on your design needs
-            const dotsCount = Math.max(1, totalWidth - nameLength - 4); // -4 for the dollar amount
-            const dots = ".".repeat(dotsCount);
-            
-            return `<li>${index + 1}. ${winner.name}${dots}$${winner.total}</li>`;
-        })
-        .join("");
 }
 
 /**
@@ -573,12 +544,21 @@ function updateWinnersList() {
  * @param {string} winnerName - Winner's name
  */
 function updateSquareDisplay(square, question, winnerName) {
+    // Remove the click event listener
+    if (square.clickHandler) {
+        square.removeEventListener("click", square.clickHandler);
+        square.clickHandler = null;
+    }
+    
     const content = createCompletedContent(question, winnerName);
     
     square.innerHTML = "";
     square.appendChild(content);
     square.classList.remove("input-active");
     square.classList.add("completed");
+    
+    // Remove hover effects by setting pointer-events to none
+    square.style.pointerEvents = "none";
 }
 
 /**
@@ -612,18 +592,70 @@ function createCompletedContent(question, winnerName) {
 }
 
 /**
- * Generate and download winners file
+ * Save winner to the winners list
+ * @param {string} winnerName - Name of the winner
  */
-function downloadWinnersFile() {
-    if (winners.length === 0) {
-        alert("No winners to download yet!");
-        return;
-    }
+function saveWinner(winnerName) {
+    const category = currentSquare.dataset.category;
+    const question = currentSquare.dataset.question;
+    const answer = currentSquare.dataset.answer;
+    const isK9Double = currentSquare.dataset.isK9Double === "true";
+    const questionValue = parseInt(document.getElementById("question-value").value, 10);
+    const k9DoubleValue = parseInt(document.getElementById("k9-double-value").value, 10);
     
-    const fileContent = generateWinnersFileContent();
-    const fileName = generateFileName();
+    const winnerEntry = {
+        name: winnerName,
+        category,
+        question,
+        answer,
+        isK9Double,
+        questionValue,
+        k9DoubleValue
+    };
     
-    downloadFile(fileContent, fileName);
+    winners.push(winnerEntry);
+    updateWinnersList();
+    
+    console.log("Winner saved:", winnerEntry);
+}
+
+/**
+ * Update the winners list display
+ */
+function updateWinnersList() {
+    const winnersList = document.getElementById("winners-list");
+    
+    // Calculate total winnings per person
+    const winnerTotals = {};
+    
+    winners.forEach(winner => {
+        const pointValue = winner.isK9Double ? 
+            (winner.k9DoubleValue || 50) : 
+            (winner.questionValue || 25);
+        
+        if (winnerTotals[winner.name]) {
+            winnerTotals[winner.name] += pointValue;
+        } else {
+            winnerTotals[winner.name] = pointValue;
+        }
+    });
+    
+    // Convert to array and sort by total winnings (highest first)
+    const sortedWinners = Object.entries(winnerTotals)
+        .map(([name, total]) => ({ name, total }))
+        .sort((a, b) => b.total - a.total);
+    
+    winnersList.innerHTML = sortedWinners
+        .map((winner, index) => {
+            // Create dots to fill space between name and value
+            const nameLength = winner.name.length;
+            const totalWidth = 25;
+            const dotsCount = Math.max(1, totalWidth - nameLength - 4);
+            const dots = ".".repeat(dotsCount);
+            
+            return `<li>${index + 1}. ${winner.name}${dots}$${winner.total}</li>`;
+        })
+        .join("");
 }
 
 /**
@@ -633,11 +665,13 @@ function downloadWinnersFile() {
 function generateWinnersFileContent() {
     const header = "K9 Finance DAO Trivia Winners\n" + "=".repeat(30) + "\n\n";
     
-    // Calculate total winnings per person (same logic as updateWinnersList)
+    // Calculate total winnings per person
     const winnerTotals = {};
     
     winners.forEach(winner => {
-        const pointValue = winner.isK9Double ? 50 : 25;
+        const pointValue = winner.isK9Double ? 
+            (winner.k9DoubleValue || 50) : 
+            (winner.questionValue || 25);
         
         if (winnerTotals[winner.name]) {
             winnerTotals[winner.name] += pointValue;
@@ -654,10 +688,9 @@ function generateWinnersFileContent() {
     // Format winners content with dots and dollar amounts
     const winnersContent = sortedWinners
         .map((winner, index) => {
-            // Create dots to fill space between name and value
             const nameLength = winner.name.length;
-            const totalWidth = 30; // Slightly wider for file format
-            const dotsCount = Math.max(1, totalWidth - nameLength - 4); // -4 for the dollar amount
+            const totalWidth = 30;
+            const dotsCount = Math.max(1, totalWidth - nameLength - 4);
             const dots = ".".repeat(dotsCount);
             
             return `${index + 1}. ${winner.name}${dots}$${winner.total}`;
@@ -694,4 +727,19 @@ function downloadFile(content, filename) {
     link.click();
     
     URL.revokeObjectURL(link.href);
+}
+
+/**
+ * Generate and download winners file
+ */
+function downloadWinnersFile() {
+    if (winners.length === 0) {
+        alert("No winners to download yet!");
+        return;
+    }
+    
+    const fileContent = generateWinnersFileContent();
+    const fileName = generateFileName();
+    
+    downloadFile(fileContent, fileName);
 }
