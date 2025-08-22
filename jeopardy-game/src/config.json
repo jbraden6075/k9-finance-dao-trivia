@@ -1,4 +1,7 @@
 {
   "normalQuestionValue": 25,
-  "k9DoubleQuestionValue": 50
+  "k9DoubleQuestionValue": 50,
+  "enableDoubles": false,
+  "doubleValue": 2,
+  "questionsFile": "src/assets/questions.csv"
 }
