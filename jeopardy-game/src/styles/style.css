@@ -26,55 +26,52 @@ h1 {
 }
 
 #game-container {
-    display: flex; /* Align the game board and winners section side by side */
-    align-items: flex-start; /* Align the top edges of both sections */
-    gap: 20px; /* Add spacing between the game board and winners section */
-    width: 100%; /* Ensure the container spans the full width */
-    margin: 0 auto; /* Center the container horizontally */
-    box-sizing: border-box; /* Include padding and border in the element's size */
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 #game-board {
-    flex: 1; /* Allow the game board to take up the remaining space */
+    flex: 1;
     display: flex;
-    flex-direction: column; /* Stack the category row and question grid vertically */
-    gap: 10px; /* Add spacing between the category row and the question grid */
-    width: 80%; /* Adjust the width of the game board */
+    flex-direction: column;
+    gap: 10px;
+    height: calc(100vh - 120px); /* Reserve space for header */
     box-sizing: border-box;
-    margin-left: 20px
+    margin-left: 0;
 }
 
 #category-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Dynamically adjust based on the number of categories */
-    gap: 5px; /* Add spacing between the category rectangles */
+    gap: 5px;
+    height: 80px; /* Fixed height for categories */
+}
+
+#question-grid {
+    display: grid;
+    gap: 5px;
+    flex: 1; /* Take remaining height */
+    grid-template-rows: repeat(var(--rows), 1fr); /* Use CSS custom property */
 }
 
 .category-cell {
-    height: 50px;
     background-color: #EF7C31;
     color: #000000;
     font-weight: bold;
-    font-size: 28px;
+    font-size: clamp(16px, 2.5vw, 28px); /* Responsive font size */
     display: flex;
     align-items: center;
     justify-content: center;
     border: 2px solid #001f3f;
     box-sizing: border-box;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(255, 255, 255, 0.2); /* Enhanced shadow for depth */
-    border-radius: 5px; /* Optional: Add rounded corners */
-    background: linear-gradient(to bottom, #EF7C31, #D65A1F); /* Add gradient for lighting effect */
-}
-
-/* Make font smaller for multi-word category cells
-.category-cell.multi-word {
-    font-size: 20px; //or any size you prefer 
-} */
-
-#question-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Dynamically adjust based on the number of columns */
-    gap: 5px; /* Add spacing between the squares */
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    background: linear-gradient(to bottom, #EF7C31, #D65A1F);
 }
 
 .square {
@@ -83,23 +80,22 @@ h1 {
     background-color: #F3A73D;
     color: #000000;
     border: 2px solid #000000;
-    box-sizing: border-box; /* Include padding and border in the element's size */
+    box-sizing: border-box;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    width: 335px; /* Set a fixed width for the squares */
-    height: 220px; /* Set a fixed height for the squares */
+    font-size: clamp(14px, 1.5vw, 18px); /* Responsive font size */
+    /* Remove min-height and aspect-ratio - let grid handle sizing */
     overflow: hidden;
     word-wrap: break-word;
     word-break: break-word;
     white-space: normal;
     line-height: 1.2;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(255, 255, 255, 0.2); /* Enhanced shadow for depth */
-    border-radius: 5px; /* Optional: Add rounded corners */
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover effect */
-    background: linear-gradient(to bottom, #F3A73D, #D68A3D); /* Add gradient for lighting effect */
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: linear-gradient(to bottom, #F3A73D, #D68A3D);
 }
 
 .square:hover {
@@ -108,30 +104,25 @@ h1 {
 }
 
 #winners-section {
-    display: flex; /* Enable Flexbox */
-    flex-direction: column; /* Stack children vertically */
-    justify-content: space-between; /* Push the list to the top and the button to the bottom */
-    align-items: center; /* Center the button horizontally */
-    width: 20%; /* Set the width of the winners section */
-    background-color: #EF7C31; /* Optional: Add a background color */
-    border: 2px solid #000000; /* Optional: Add a border */
-    border-radius: 5px; /* Optional: Add rounded corners */
-    padding: 10px; /* Add padding inside the winners section */
-    box-sizing: border-box; /* Include padding and border in the element's size */
-    align-self: stretch; /* Stretch the height to match the game board */
-    font-family: 'Manrope', sans-serif; /* Use Manrope font */
-    font-weight: 400; /* Set font weight to Normal 400 */
-    font-size: 12px; /* Set font size to 12px */
-    color: #000000; /* Optional: Set text color */
-    margin-right: 20px;
+    width: 300px; /* Fixed width for winners section */
+    height: calc(100vh - 120px); /* Match the game board height */
+    background-color: #EF7C31;
+    border: 2px solid #001f3f;
+    border-radius: 5px;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(255, 255, 255, 0.2);
+    background: linear-gradient(to bottom, #EF7C31, #D65A1F);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 20px;
 }
 
-/* Style for the winners list */
 #winners-list {
+    flex: 1; /* Take all available space in the winners section */
+    overflow-y: auto; /* Allow scrolling if winners list gets too long */
     list-style: none; /* Remove default bullet points */
     padding: 0; /* Remove default padding */
     margin: 0; /* Remove default margin */
-    flex-grow: 1; /* Allow the list to take up available space */
     font-family: 'Manrope', sans-serif;
     font-size: 16px;
     color: #000000;
@@ -204,17 +195,16 @@ h1 {
 .answer-displayed,
 .input-active,
 .completed {
-    width: 335px; /* Set a fixed width for the squares */
-    height: 220px; /* Set a fixed height for the squares */
+    /* Remove min-height and aspect-ratio - inherit from .square */
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    overflow: hidden; /* Prevent content from overflowing */
-    word-wrap: break-word; /* Allow long words to wrap */
-    word-break: break-word; /* Ensure long words break properly */
-    white-space: normal; /* Allow text to wrap to the next line */
-    box-sizing: border-box; /* Include padding and border in the element's size */
+    overflow: hidden;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    box-sizing: border-box;
 }
 
 .question-displayed {
@@ -229,8 +219,6 @@ h1 {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    width: 335px;
-    height: 220px;
     background-color: #EF7C31;
     position: relative;
     text-align: center;
@@ -395,38 +383,8 @@ h1 {
         transform: scale(0.1);
         opacity: 0;
     }
-    20% {
-        transform: scale(0.2);
-        opacity: 1;
-    }
-    40% {
-        transform: scale(0.4);
-    }
-    60% {
-        transform: scale(0.6);
-        opacity: 1;
-    }
-    80% {
-        transform: scale(0.8);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    20% {
-        transform: scale(0.8);
-        opacity: 1;
-    }
-    40% {
-        transform: scale(0.6);
-    }
-    60% {
-        transform: scale(0.4);
-        opacity: 1;
-    }
-    80% {
-        transform: scale(0.2);
+    50% {
+        transform: scale(1.2);
         opacity: 1;
     }
     100% {
@@ -565,4 +523,9 @@ h1 {
   min-height: 0;
   margin: 0;
   padding: 0;
+}
+
+#category-row, #question-grid {
+    width: 100%;
+    box-sizing: border-box;
 }

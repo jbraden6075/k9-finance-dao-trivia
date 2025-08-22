@@ -75,13 +75,21 @@ function startApp(config) {
         console.log("Questions array:", questions);
 
         // Extract unique categories
-        const categories = [...new Set(questions.map(q => q.Category))];
+        const categories = [...new Set(questions.map(q => q.category))];
+
+        // Calculate the maximum number of questions per category
+        const maxQuestionsPerCategory = Math.max(...categories.map(category => 
+            questions.filter(q => q.category === category).length
+        ));
 
         // Set up the category row and question grid
         categoryRow.style.display = "grid";
         categoryRow.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
         questionGrid.style.display = "grid";
         questionGrid.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
+        
+        // Set CSS custom property for number of rows
+        document.documentElement.style.setProperty('--rows', maxQuestionsPerCategory);
 
         // Populate categories and questions
         categories.forEach(category => {
@@ -95,19 +103,19 @@ function startApp(config) {
             categoryRow.appendChild(categoryCell);
         });
 
-        for (let rowIndex = 0; rowIndex < 5; rowIndex++) {
+        for (let rowIndex = 0; rowIndex < maxQuestionsPerCategory; rowIndex++) {
             categories.forEach(category => {
                 const square = document.createElement("div");
                 square.classList.add("square");
                 square.textContent = rowIndex + 1;
 
-                const categoryQuestions = questions.filter(q => q.Category === category);
+                const categoryQuestions = questions.filter(q => q.category === category);
                 const question = categoryQuestions[rowIndex];
 
                 if (question) {
                     square.dataset.category = category;
-                    square.dataset.question = question.Question;
-                    square.dataset.answer = question.Answer;
+                    square.dataset.question = question.question;
+                    square.dataset.answer = question.answer;
 
                     // Add click event listener for each square
                     square.addEventListener("click", (event) => {
@@ -123,16 +131,16 @@ function startApp(config) {
 
                         if (question.isK9Double) {
                             showK9DoubleOverlay(() => {
-                                showOverlay(question.Question, () => {
-                                    showOverlay(question.Answer, () => {
+                                showOverlay(question.question, () => {
+                                    showOverlay(question.answer, () => {
                                         overlay.classList.add("hidden");
                                         displayInputBox(square, question);
                                     });
                                 });
                             });
                         } else {
-                            showOverlay(question.Question, () => {
-                                showOverlay(question.Answer, () => {
+                            showOverlay(question.question, () => {
+                                showOverlay(question.answer, () => {
                                     overlay.classList.add("hidden");
                                     displayInputBox(square, question);
                                 });
@@ -144,6 +152,10 @@ function startApp(config) {
                         square.classList.add("k9-double");
                         square.dataset.k9Double = "true";
                     }
+                } else {
+                    // If no question exists for this position, make the square disabled
+                    square.classList.add("disabled");
+                    square.textContent = "";
                 }
 
                 questionGrid.appendChild(square);
@@ -308,7 +320,7 @@ function updateSquare(square, question, enteredValue) {
     square.innerHTML = `
         <div class="completed-content">
             ${isK9Double ? `<div class="k9-double-label">K9 DOUBLE</div>` : ""}
-            <div class="completed-answer">${question.Answer}</div>
+            <div class="completed-answer">${question.answer}</div>
             <div class="completed-winner">${enteredValue}</div>
         </div>
     `;

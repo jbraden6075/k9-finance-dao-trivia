@@ -8,16 +8,21 @@ export async function loadQuestions(filePath) {
 
         // Parse the CSV into an array of objects
         const rows = csvText.split("\n").filter(row => row.trim() !== ""); // Remove empty rows
-        const headers = rows[0].split(",").map(h => h.trim());
+        const headers = rows[0].split(",").map(h => h.trim().toLowerCase()); // Convert headers to lowercase
 
         return rows.slice(1).map(row => {
             // Use a regular expression to split the row while preserving quoted values
-            const values = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(value => value.replace(/(^"|"$)/g, "").trim());
+            const matches = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+            if (!matches) {
+                console.warn(`Skipping malformed row: ${row}`);
+                return null;
+            }
+            const values = matches.map(value => value.replace(/(^"|"$)/g, "").trim());
             return headers.reduce((acc, header, index) => {
-                acc[header] = values[index];
+                acc[header] = values[index] || "";
                 return acc;
             }, {});
-        });
+        }).filter(Boolean); // Remove null entries
     } catch (error) {
         console.error("Error loading questions:", error);
         return [];
