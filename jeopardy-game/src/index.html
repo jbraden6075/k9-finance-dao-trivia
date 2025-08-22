@@ -3,78 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jeopardy Game</title>
+    <title>K9 Finance DAO Jeopardy Game</title>
     <link rel="stylesheet" href="styles/style.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
     <header>
-        <img src="./assets/K9 Finance Banner.png" alt="K9 Finance Banner" id="k9-banner">
+        <img id="k9-banner" src="assets/k9-banner.png" alt="K9 Finance DAO Banner">
     </header>
-    <main>
-        <div id="game-container">
-            <div id="game-board">
-                <div id="category-row">
-                    <!-- Categories will be dynamically added here -->
-                </div>
-                <div id="question-grid">
-                    <!-- Question squares will be dynamically added here -->
-                </div>
-            </div>
-            <div id="winners-section">
-                <h2>Winners</h2>
-                <ul id="winners-list"></ul>
-                <button id="download-winners"></button>
-            </div>
-        </div>
+
+    <main id="game-container">
+        <section id="game-board">
+            <div id="category-row"></div>
+            <div id="question-grid"></div>
+        </section>
+
+        <aside id="winners-section">
+            <h2>Winners</h2>
+            <ul id="winners-list"></ul>
+            <!-- Replace button with knBONE Logo image -->
+            <img id="download-winners" src="assets/knBONE Logo.png" alt="Download Winners" title="Download Winners">
+        </aside>
     </main>
-    <footer>
-        <p>&copy; 2025 - K9 Finance DAO</p>
-    </footer>
-    <script type="module" src="scripts/app.js"></script>
-    <script>
-        function updateSquare(square, question, enteredValue) {
-            square.innerHTML = `
-                <div>${question.Question}</div>
-                <div style="font-weight: bold;">${question.Answer}</div>
-                <div style="font-style: italic;">${enteredValue}</div>
-            `;
-            square.classList.add("completed");
-        }
-    </script>
+
+    <div id="question-overlay" class="overlay hidden">
+        <div id="overlay-content"></div>
+    </div>
+
     <div id="k9-double-overlay" class="k9-double-overlay hidden">
-      <div id="k9-double-logos"></div>
-      <div id="k9-double-content">K9 DOUBLE!</div>
-    </div>
-    <div id="config-modal" class="modal">
-      <div class="modal-content">
-        <h2>Game Configuration</h2>
-        <label for="normal-value">Value of each normal question:</label>
-        <select id="normal-value">
-          <option value="1">$1</option>
-          <option value="5">$5</option>
-          <option value="10">$10</option>
-          <option value="20">$20</option>
-          <option value="25" selected>$25</option>
-        </select>
-        <br><br>
-        <label>
-          <input type="checkbox" id="enable-doubles">
-          Will there be doubles?
-        </label>
-        <div id="double-config" style="display:none; margin-top:10px;">
-          <label for="double-value">Value of each double question:</label>
-          <select id="double-value">
-            <option value="2">$2</option>
-            <option value="10">$10</option>
-            <option value="20">$20</option>
-            <option value="25">$25</option>
-            <option value="50" selected>$50</option>
-          </select>
+        <div id="k9-double-content">
+            <div id="k9-double-logos">
+            </div>
         </div>
-        <br>
-        <button id="start-game-btn">Start Game</button>
-      </div>
     </div>
+
+    <div id="config-modal" class="modal">
+        <div class="modal-content">
+            <h2>Game Configuration</h2>
+            
+            <label for="enable-doubles">
+                <input type="checkbox" id="enable-doubles"> Enable K9 Doubles
+            </label>
+            
+            <div id="double-config">
+                <label for="double-value">Number of K9 Doubles:</label>
+                <select id="double-value">
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+            
+            <button type="button" id="start-game-btn">Start Game</button>
+        </div>
+    </div>
+
+    <script type="module" src="scripts/app.js"></script>
 </body>
 </html>
