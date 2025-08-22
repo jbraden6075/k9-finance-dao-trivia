@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
 
 :root {
     --primary-green: #55C31D;
@@ -19,7 +19,7 @@
 
 body {
     font-family: 'Manrope', sans-serif;
-    font-weight: 800;
+    font-weight: 400; /* Normal instead of 800 */
     background-color: var(--primary-green);
     margin: 0;
     padding: 0;
@@ -30,6 +30,7 @@ header h1 {
     font-size: 2rem;
     margin: 20px 0;
     color: var(--text-color);
+    font-weight: 700; /* Bold */
 }
 
 #k9-banner {
@@ -75,7 +76,7 @@ header h1 {
 .category-cell {
     background: linear-gradient(to bottom, var(--primary-orange), var(--dark-orange));
     color: var(--text-color);
-    font-weight: bold;
+    font-weight: 700; /* Bold instead of bold */
     font-size: clamp(16px, 2.5vw, 28px);
     display: flex;
     align-items: center;
@@ -96,6 +97,7 @@ header h1 {
     align-items: center;
     justify-content: center;
     font-size: clamp(14px, 1.5vw, 18px);
+    font-weight: 800; /* Extra Bold - add this line */
     overflow: hidden;
     word-wrap: break-word;
     word-break: break-word;
@@ -128,6 +130,7 @@ header h1 {
     margin-top: 0;
     margin-bottom: 20px;
     font-size: 1.5rem;
+    font-weight: 700; /* Bold */
 }
 
 #winners-list {
@@ -141,16 +144,14 @@ header h1 {
     text-align: left;
     white-space: pre;
     width: 100%;
+    font-weight: 700; /* Bold - add this line */
 }
 
 #winners-list li {
     margin-bottom: 10px;
     padding-bottom: 10px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-#winners-list li:last-child {
-    border-bottom: none;
+    font-weight: 700; /* Bold - add this line */
 }
 
 .button {
@@ -159,7 +160,7 @@ header h1 {
     border: 2px solid var(--border-color);
     padding: 10px 20px;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600; /* Semi Bold instead of bold */
     border-radius: var(--border-radius);
     cursor: pointer;
     box-shadow: var(--shadow);
@@ -211,6 +212,7 @@ header h1 {
     font-size: 18px; /* Optional: Adjust the font size if needed */
     text-align: center; /* Center the text */
     white-space: pre-wrap; /* Preserve new lines and allow wrapping */
+    font-weight: 700; /* Bold - add this line */
 }
 
 .completed {
@@ -243,24 +245,24 @@ header h1 {
     color: #000;
     padding: 4px 8px;
     border-radius: 3px;
-    font-size: 1.2em; /* Same size as input text (winner name) */
-    font-weight: bold;
+    font-size: 1.2em;
+    font-weight: 700; /* Bold instead of bold */
     margin-bottom: 5px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .completed-answer {
-    font-size: 1.0em; /* Smaller than input text */
+    font-size: 1.0em;
     margin-bottom: 5px;
-    font-weight: bold;
+    font-weight: 700; /* Bold instead of 600 */
     color: var(--text-color);
 }
 
 .completed-winner {
-    font-size: 1.2em; /* Larger input text */
+    font-size: 1.2em;
     color: #2c5530;
-    font-weight: bold;
+    font-weight: 800; /* Extra Bold instead of 700 */
 }
 
 .save-button {
@@ -302,6 +304,7 @@ header h1 {
     text-align: center;
     padding: 20px;
     cursor: pointer;
+    font-weight: 800; /* Extra Bold - add this line */
 }
 
 .overlay.hidden {
@@ -321,6 +324,7 @@ header h1 {
     z-index: 1001;
     cursor: pointer;
     overflow: hidden; /* Hide overflowing animated elements */
+    font-weight: 800; /* Extra Bold - add this line */
 }
 
 .k9-double-overlay.hidden {
@@ -453,6 +457,7 @@ header h1 {
 .modal-content h2 {
     color: var(--text-color);
     margin-top: 0;
+    font-weight: 700; /* Bold */
 }
 
 .modal-content label {
@@ -460,7 +465,7 @@ header h1 {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    font-weight: bold;
+    font-weight: 600; /* Semi Bold instead of bold */
 }
 
 #double-value {
@@ -495,16 +500,11 @@ header h1 {
     border: none;
     padding: 12px 24px;
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 700; /* Bold instead of bold */
     border-radius: var(--border-radius);
     cursor: pointer;
     box-shadow: var(--shadow);
     transition: all var(--transition);
-}
-
-#start-game-btn:hover {
-    background: linear-gradient(to bottom, #4CAF50, #45a049);
-    transform: translateY(-2px);
 }
 
 .input-container {
