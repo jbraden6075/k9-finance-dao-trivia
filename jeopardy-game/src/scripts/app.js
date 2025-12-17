@@ -487,9 +487,9 @@ function showInputBox(square, question) {
     const input = inputContainer.querySelector('input[type="text"]');
     input.focus();
     
-    // Re-setup the handlers on the new elements
+    // Re-setup the handlers on the new elements - pass the square reference
     const saveButton = inputContainer.querySelector('.save-button');
-    setupInputHandlers(input, saveButton);
+    setupInputHandlers(input, saveButton, square);
     
     // Prevent the input container from triggering any click events on the square
     inputContainer.addEventListener('click', (event) => {
@@ -533,8 +533,9 @@ function createInputContainer() {
  * Set up input field and save button event handlers
  * @param {HTMLElement} input - Input field
  * @param {HTMLElement} saveButton - Save button
+ * @param {HTMLElement} square - The square element this input is for
  */
-function setupInputHandlers(input, saveButton) {
+function setupInputHandlers(input, saveButton, square) {
     const handleSave = (event) => {
         // Prevent event bubbling
         if (event) {
@@ -545,16 +546,37 @@ function setupInputHandlers(input, saveButton) {
         const enteredValue = input.value.trim();
         
         if (enteredValue) {
-            saveWinner(enteredValue);
+            // Use the square parameter instead of currentSquare
+            const category = square.dataset.category;
+            const question = square.dataset.question;
+            const answer = square.dataset.answer;
+            const isK9Double = square.dataset.isK9Double === "true";
+            const questionValue = parseInt(document.getElementById("question-value").value, 10);
+            const k9DoubleValue = parseInt(document.getElementById("k9-double-value").value, 10);
+            
+            const winnerEntry = {
+                name: enteredValue,
+                category,
+                question,
+                answer,
+                isK9Double,
+                questionValue,
+                k9DoubleValue
+            };
+            
+            winners.push(winnerEntry);
+            updateWinnersList();
+            
+            console.log("Winner saved:", winnerEntry);
             
             // Create question object with proper data
             const questionData = {
-                question: currentSquare.dataset.question,
-                answer: currentSquare.dataset.answer,
-                isK9Double: currentSquare.dataset.isK9Double === "true"
+                question: square.dataset.question,
+                answer: square.dataset.answer,
+                isK9Double: square.dataset.isK9Double === "true"
             };
             
-            updateSquareDisplay(currentSquare, questionData, enteredValue);
+            updateSquareDisplay(square, questionData, enteredValue);
         }
     };
     
@@ -630,34 +652,6 @@ function createCompletedContent(question, winnerName) {
     container.appendChild(winnerDiv);
     
     return container;
-}
-
-/**
- * Save winner to the winners list
- * @param {string} winnerName - Name of the winner
- */
-function saveWinner(winnerName) {
-    const category = currentSquare.dataset.category;
-    const question = currentSquare.dataset.question;
-    const answer = currentSquare.dataset.answer;
-    const isK9Double = currentSquare.dataset.isK9Double === "true";
-    const questionValue = parseInt(document.getElementById("question-value").value, 10);
-    const k9DoubleValue = parseInt(document.getElementById("k9-double-value").value, 10);
-    
-    const winnerEntry = {
-        name: winnerName,
-        category,
-        question,
-        answer,
-        isK9Double,
-        questionValue,
-        k9DoubleValue
-    };
-    
-    winners.push(winnerEntry);
-    updateWinnersList();
-    
-    console.log("Winner saved:", winnerEntry);
 }
 
 /**
